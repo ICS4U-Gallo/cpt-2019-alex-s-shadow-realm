@@ -2,9 +2,10 @@
 Program description. Replace with description of your program. Give a description of each scene.
 
 ### Group Members:
-- Member1
-- Member2
-
+- Rayhaan
+- Jean Luc
+- Alan
+- Alex
 
 # CPT 2019
 This repository will serve as a starting point for your project. Do not alter the structure without approval from Mr. Gallo.
