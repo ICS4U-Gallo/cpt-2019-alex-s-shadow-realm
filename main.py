@@ -6,6 +6,7 @@ from menu import MenuView
 from rays_level import RayView
 from alex_level import Alexlevel
 from alans_level import Alanslevel
+from jeanluc_level import JeanlucView
 
 
 class Director(arcade.Window):
@@ -16,7 +17,8 @@ class Director(arcade.Window):
             MenuView,
             RayView,
             Alexlevel,
-            Alanslevel
+            Alanslevel,
+            JeanlucView
         ]
         self.next_view()
 
