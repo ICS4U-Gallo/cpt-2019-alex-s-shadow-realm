@@ -9,7 +9,7 @@ class RayView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text("Ray's level", settings.WIDTH/2, settings.HEIGHT/2,
+        arcade.draw_text("Ray's level, if ur stuck click 0", settings.WIDTH/2, settings.HEIGHT/2,
                          arcade.color.BLACK, font_size=30, anchor_x="center")
 
     def on_key_press(self, key, modifiers):
