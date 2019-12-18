@@ -3,7 +3,7 @@ import arcade
 import settings
 
 
-class alex_level(arcade.View):
+class Alexlevel(arcade.View):
     def on_show(self):
         arcade.set_background_color(arcade.color.WHITE)
 
@@ -28,7 +28,7 @@ if __name__ == "__main__":
     """
     from utils import FakeDirector
     window = arcade.Window(settings.WIDTH, settings.HEIGHT)
-    my_view = alex_level()
+    my_view = Alexlevel()
     my_view.director = FakeDirector(close_on_next_view=True)
     window.show_view(my_view)
     arcade.run()
