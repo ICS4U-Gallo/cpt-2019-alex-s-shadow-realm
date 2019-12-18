@@ -3,9 +3,9 @@ import arcade
 import settings
 
 from menu import MenuView
-from chapter_1 import Chapter1View
 from rays_level import RayView
 from alex_level import Alexlevel
+from alans_level import Alanslevel
 
 
 class Director(arcade.Window):
@@ -14,9 +14,9 @@ class Director(arcade.Window):
         self.view_index = 0
         self.views = [
             MenuView,
-            Chapter1View,
             RayView,
-            Alexlevel
+            Alexlevel,
+            Alanslevel
         ]
         self.next_view()
 
