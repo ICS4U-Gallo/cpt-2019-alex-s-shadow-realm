@@ -20,9 +20,14 @@ class Alexlevel(arcade.View):
         self.player_sprite.center_x = 64
         self.player_sprite.center_y = 128
         self.player_list.append(self.player_sprite)
+       
+        self.background = arcade.load_texture("/Users/alexpassarelli/Downloads/cpt/glacial_mountains_preview_lightened.png")
         
     def on_draw(self):
         arcade.start_render()
+
+        arcade.draw_texture_rectangle(settings.WIDTH // 2, settings.HEIGHT // 2,
+                                      settings.WIDTH, settings.HEIGHT, self.background)
 
         self.wall_list.draw()
         self.coin_list.draw()
