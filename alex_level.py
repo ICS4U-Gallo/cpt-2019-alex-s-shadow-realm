@@ -11,7 +11,7 @@ LEFT_FACING = 1
 
 MOVEMENT_SPEED = 5
 UPDATES_PER_FRAME = 7
-GRAVITY = 1
+GRAVITY = 0.5
 PLAYER_JUMP_SPEED = 20
 
 
@@ -61,24 +61,24 @@ PLAYER_JUMP_SPEED = 20
 #             texture = load_texture_pair("cpt-2019-alex-s-shadow-realm/images/Alex Images/Owlet_Monster_Walk_6.png")
 #             self.walk_textures.append(texture)
 
-    # def update_animation(self, delta_time: float = 1/60):
+#     def update_animation(self, delta_time: float = 1/60):
 
-    #     # Figure out if we need to flip face left or right
-    #     if self.change_x < 0 and self.character_face_direction == RIGHT_FACING:
-    #         self.character_face_direction = LEFT_FACING
-    #     elif self.change_x > 0 and self.character_face_direction == LEFT_FACING:
-    #         self.character_face_direction = RIGHT_FACING
+#         # Figure out if we need to flip face left or right
+#         if self.change_x < 0 and self.character_face_direction == RIGHT_FACING:
+#             self.character_face_direction = LEFT_FACING
+#         elif self.change_x > 0 and self.character_face_direction == LEFT_FACING:
+#             self.character_face_direction = RIGHT_FACING
 
-    #     # Idle animation
-    #     if self.change_x == 0 and self.change_y == 0:
-    #         self.texture = self.idle_texture_pair[self.character_face_direction]
-    #         return
+#         # Idle animation
+#         if self.change_x == 0 and self.change_y == 0:
+#             self.texture = self.idle_texture_pair[self.character_face_direction]
+#             return
 
-    #     # Walking animation
-    #     self.cur_texture += 1
-    #     if self.cur_texture > 7 * UPDATES_PER_FRAME:
-    #         self.cur_texture = 0
-    #     self.texture = self.walk_textures[self.cur_texture // UPDATES_PER_FRAME][self.character_face_direction]
+#         # Walking animation
+#         self.cur_texture += 1
+#         if self.cur_texture > 7 * UPDATES_PER_FRAME:
+#             self.cur_texture = 0
+#         self.texture = self.walk_textures[self.cur_texture // UPDATES_PER_FRAME][self.character_face_direction]
 
 
 
@@ -109,12 +109,12 @@ class Alexlevel(arcade.View):
         self.player_list.append(self.player_sprite)
 
        
-        self.background = arcade.load_texture("cpt-2019-alex-s-shadow-realm/images/Alex Images/glacial_mountains_preview_lightened.png")
+        self.background = arcade.load_texture("cpt-2019-alex-s-shadow-realm/images/Alex Images/Purple.png")
         
         # Create the ground
 
         for x in range(0, settings.WIDTH, 64):
-            wall = arcade.Sprite("cpt-2019-alex-s-shadow-realm/images/Alex Images/Free Platform Game Assets/Update 1.9/New Tiles (2D view)/Winter/128x128/GrassJoinHillLeft2 DownShadow.png", TILE_SCALING)
+            wall = arcade.Sprite("cpt-2019-alex-s-shadow-realm/images/Alex Images/128x128/GrassJoinHillLeft2 DownShadow.png", TILE_SCALING)
             wall.center_x = x
             wall.center_y = 32
             self.wall_list.append(wall)
