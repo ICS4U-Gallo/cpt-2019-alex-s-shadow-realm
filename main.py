@@ -3,7 +3,7 @@ import arcade
 import settings
 
 from menu import MenuView
-from rays_level import RayView
+from rays_level import GameView
 from alex_level import Alexlevel
 from alans_level import Alanslevel
 from jeanluc_level import JeanlucView
@@ -15,7 +15,7 @@ class Director(arcade.Window):
         self.view_index = 0
         self.views = [
             MenuView,
-            RayView,
+            GameView,
             Alexlevel,
             Alanslevel,
             JeanlucView
