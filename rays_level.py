@@ -513,6 +513,7 @@ class GameView(arcade.View):
             self.score += 100*(300-self.frame_count//60)
             finish_view.score = self.score
             finish_view.win = True
+            finish_view.director = self.director
             self.window.show_view(finish_view)
 
         # die
@@ -521,6 +522,7 @@ class GameView(arcade.View):
             finish_view = FinishView()
             finish_view.score = self.score
             finish_view.win = False
+            finish_view.director = self.director
             self.window.show_view(finish_view)
 
         if self.reset_message is True:
@@ -552,6 +554,7 @@ class GameView(arcade.View):
             self.score = 9999999
             finish_view.score = self.score
             finish_view.win = True
+            finish_view.director = self.director
             self.window.show_view(finish_view)
 
         elif key == arcade.key.KEY_2:
@@ -619,6 +622,7 @@ class FinishView(arcade.View):
         elif WIDTH//2 - 150 < _x < WIDTH//2 + 150 and 50 < _y < 150:
             score_view = ScoreView()
             score_view.score = self.score
+            score_view.director = self.director
             self.window.show_view(score_view)
 
 
@@ -685,11 +689,11 @@ class ScoreView(arcade.View):
             if self.stats[0] > 3:
                 top -= 25
                 arcade.draw_text(str(self.stats[2]), 875, top,
-                                 arcade.color.BLAST_OFF_BRONZE, 50)
+                                 arcade.color.AFRICAN_VIOLET, 50)
                 arcade.draw_text(str(self.stats[1]), 560, top,
-                                 arcade.color.BLAST_OFF_BRONZE, 50)
+                                 arcade.color.AFRICAN_VIOLET, 50)
                 arcade.draw_text(str(self.stats[0]) + suffix[3], 250, top,
-                                 arcade.color.BLAST_OFF_BRONZE, 50)
+                                 arcade.color.AFRICAN_VIOLET, 50)
             else:
                 arcade.draw_text("NICE JOB YOU MADE THE BOARD!", WIDTH//2, top,
                                  arcade.color.NEON_GREEN, 50, align="center",
@@ -725,6 +729,9 @@ class ScoreView(arcade.View):
                 and len(self.name) < 8
                 and self.submit is False):
             self.name += (chr(key)).upper()
+        
+        elif (key == arcade.key.ENTER) and self.submit is True:
+            self.director.next_view()
 
     # enter and check name/score
     def on_key_release(self, key, modifiers):
