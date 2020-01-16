@@ -698,6 +698,9 @@ class ScoreView(arcade.View):
                 arcade.draw_text("NICE JOB YOU MADE THE BOARD!", WIDTH//2, top,
                                  arcade.color.NEON_GREEN, 50, align="center",
                                  anchor_x="center", anchor_y="center")
+            arcade.draw_text("PRESS ENTER TO CONTINUE  ->", 1100, 50,
+                                 arcade.color.RED, 25, align="center",
+                                 anchor_x="center", anchor_y="center")
 
         # name taken
         if self.name_taken is True:
