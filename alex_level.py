@@ -1,7 +1,7 @@
 import arcade
 
 import settings
-CHARACTER_SCALING = 2
+CHARACTER_SCALING = 1.5
 TILE_SCALING = 0.5
 # COIN_SCALING = 0.5
 
@@ -11,10 +11,13 @@ LEFT_FACING = 1
 
 MOVEMENT_SPEED = 5
 UPDATES_PER_FRAME = 7
-GRAVITY = 1
-PLAYER_JUMP_SPEED = 20
+GRAVITY = 0.65
+PLAYER_JUMP_SPEED = 13
 
-
+LEFT_VIEWPORT_MARGIN = 250
+RIGHT_VIEWPORT_MARGIN = 250
+BOTTOM_VIEWPORT_MARGIN = 50
+TOP_VIEWPORT_MARGIN = 100
 # def load_texture_pair(filename):
 #     """
 #     Load a texture pair, with the second being a mirror image.
@@ -102,31 +105,48 @@ class Alexlevel(arcade.View):
         self.physics_engine = None
 
         # Set up the player
-        image_source = "cpt-2019-alex-s-shadow-realm/images/Alex Images/Owlet_Monster.png"
+        image_source = "images/Alex Images/Owlet_Monster.png"
         self.player_sprite = arcade.Sprite(image_source, CHARACTER_SCALING)
         self.player_sprite.center_x = 64
         self.player_sprite.center_y = 128
         self.player_list.append(self.player_sprite)
 
-       
-        self.background = arcade.load_texture("cpt-2019-alex-s-shadow-realm/images/Alex Images/glacial_mountains_preview_lightened.png")
+        # Used to keep track of our scrolling
+        self.view_bottom = 0
+        self.view_left = 0
+
+        self.score = 0
+        
+        self.background = arcade.load_texture("images/Alex Images/glacial_mountains_preview_lightened.png")
         
         # Create the ground
 
         for x in range(0, settings.WIDTH, 64):
-            wall = arcade.Sprite("cpt-2019-alex-s-shadow-realm/images/Alex Images/Free Platform Game Assets/Update 1.9/New Tiles (2D view)/Winter/128x128/GrassJoinHillLeft2 DownShadow.png", TILE_SCALING)
+            wall = arcade.Sprite("images/Alex Images/128x128/GrassJoinHillLeft&Right.png", TILE_SCALING)
             wall.center_x = x
             wall.center_y = 32
             self.wall_list.append(wall)
 
+        coordinate_list = [[500, 200],
+                           [564, 200],
+                           [768, 96]]
 
+        for coordinate in coordinate_list:
+            # Add a crate on the ground
+            wall = arcade.Sprite("images/Alex Images/128x128/GrassCliffMid.png", TILE_SCALING)
+            wall.position = coordinate
+            self.wall_list.append(wall)
         # Adding Coins
 
-
+        self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
+        
     def on_draw(self):
         arcade.start_render()
 
         arcade.draw_texture_rectangle(settings.WIDTH // 2, settings.HEIGHT // 2,
+                                      settings.WIDTH, settings.HEIGHT, self.background)
+
+        arcade.draw_texture_rectangle(settings.WIDTH * 2, settings.HEIGHT * 2,
                                       settings.WIDTH, settings.HEIGHT, self.background)
 
         self.wall_list.draw()
@@ -135,7 +155,7 @@ class Alexlevel(arcade.View):
         self.player_list.draw()
 
         # Physics Engine
-        self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
+
 
     def on_key_press(self, key, modifiers):
         """
@@ -161,11 +181,49 @@ class Alexlevel(arcade.View):
 
         # Move the player with the physics engine
 
-
+        self.physics_engine.update()
         self.coin_list.update()
         self.coin_list.update_animation()
         self.player_list.update()
         self.player_list.update_animation()
+
+        changed = False
+
+        # Scroll left
+        left_boundary = self.view_left + LEFT_VIEWPORT_MARGIN
+        if self.player_sprite.left < left_boundary:
+            self.view_left -= left_boundary - self.player_sprite.left
+            changed = True
+
+        # Scroll right
+        right_boundary = self.view_left + settings.WIDTH - RIGHT_VIEWPORT_MARGIN
+        if self.player_sprite.right > right_boundary:
+            self.view_left += self.player_sprite.right - right_boundary
+            changed = True
+
+        # Scroll up
+        top_boundary = self.view_bottom + settings.HEIGHT - TOP_VIEWPORT_MARGIN
+        if self.player_sprite.top > top_boundary:
+            self.view_bottom += self.player_sprite.top - top_boundary
+            changed = True
+
+        # Scroll down
+        bottom_boundary = self.view_bottom + BOTTOM_VIEWPORT_MARGIN
+        if self.player_sprite.bottom < bottom_boundary:
+            self.view_bottom -= bottom_boundary - self.player_sprite.bottom
+            changed = True
+
+        if changed:
+            # Only scroll to integers. Otherwise we end up with pixels that
+            # don't line up on the screen
+            self.view_bottom = int(self.view_bottom)
+            self.view_left = int(self.view_left)
+
+            # Do the scrolling
+            arcade.set_viewport(self.view_left,
+                                settings.WIDTH + self.view_left,
+                                self.view_bottom,
+                                settings.HEIGHT + self.view_bottom)
 
 if __name__ == "__main__":
     """This section of code will allow you to run your View
