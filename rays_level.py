@@ -10,7 +10,7 @@ HEIGHT = settings.HEIGHT
 background = arcade.load_texture("images/back.jpg")
 
 
-def count_score(num_list: List[int]) -> int:
+def count_score(num_list: List["Coin"]) -> int:
     if len(num_list) == 0:
         return 0
     elif num_list[0].get_time_collected() is not None:
@@ -21,6 +21,14 @@ def count_score(num_list: List[int]) -> int:
 
 
 def check_name(name: str) -> bool:
+    '''Check if name is already taken
+
+    Args:
+        name(str): name that needs to be checked
+    Returns:
+        boolean If the name is already in use
+    '''
+
     with open("scores.json", "r") as f:
         score_dictionary = json.load(f)
 
@@ -35,6 +43,15 @@ def check_name(name: str) -> bool:
 
 
 def binary_search(lista: List[int], target: int) -> int:
+    '''searches sorted list for position of target number
+
+    Args:
+        lista (list[int]): list to search
+        target (int): target number you are looking for
+    returns:
+        index location of target number
+    '''
+
     start = 0
     end = len(lista) - 1
     while start <= end:
@@ -49,6 +66,14 @@ def binary_search(lista: List[int], target: int) -> int:
 
 
 def merge_sort(numbers: List[int]) -> List[int]:
+    '''sorts list of ints
+
+    Args:
+        numbers (list[int]): list that needs to be sorted
+    Returns:
+        sorted list
+    '''
+
     if len(numbers) == 1:
         return numbers
     midpoint = len(numbers)//2
@@ -79,6 +104,16 @@ def merge_sort(numbers: List[int]) -> List[int]:
 
 
 def save_score(name: str = None, score: int = None) -> List:
+    '''saves players score to file, as well as finds the players rank
+    using binary search and merge sort
+
+    Args:
+        name (str): players name
+        score (int): players score
+    Returns:
+        list containing players rank, score, and name
+    '''
+
     with open("scores.json", "r") as f:
         score_dictionary = json.load(f)
 
@@ -100,6 +135,11 @@ def save_score(name: str = None, score: int = None) -> List:
 
 
 def find_highscores() -> List:
+    '''finds the three highest scores
+
+    Returns:
+        list of three highest names and scores
+    '''
     with open("scores.json", "r") as f:
         dictionary = json.load(f)
         data = []
@@ -127,7 +167,7 @@ class Player(arcade.Sprite):
         super().__init__(image, scale=0.25)
 
         # Create a variable to hold our speed. 'angle' is created by the parent
-        self._speed = 0
+        self._speed = 0   """ Set up the player """
         self.move_speed = 7.5
         self.turn_speed = 5
         self.center_x = 35
@@ -160,6 +200,12 @@ class Player(arcade.Sprite):
 
     def set_speed(self, speed: int) -> None:
         self._speed = speed
+
+    def hit(self):
+        self.center_x = 35
+        self.center_y = 575
+        self.angle = 270
+        
 
 
 class Turret(arcade.Sprite):
@@ -458,9 +504,7 @@ class GameView(arcade.View):
             if hit is True:
                 laser.remove_from_sprite_lists()
 
-                self.player.center_x = 35
-                self.player.center_y = 575
-                self.player.angle = 270
+                self.player.hit()
                 self.heart_list[-1].remove_from_sprite_lists()
                 print(len(self.heart_list))
 
@@ -468,9 +512,7 @@ class GameView(arcade.View):
                 or self.player.collides_with_list(self.barrier_turrets)
                 or self.player.collides_with_list(self.barriers)):
 
-            self.player.center_x = 35
-            self.player.center_y = 575
-            self.player.angle = 270
+            self.player.hit()
             self.heart_list[-1].remove_from_sprite_lists()
             print(len(self.heart_list))
 
