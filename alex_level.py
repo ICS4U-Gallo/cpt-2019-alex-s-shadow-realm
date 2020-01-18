@@ -9,7 +9,7 @@ TILE_SCALING = 0.5
 RIGHT_FACING = 0
 LEFT_FACING = 1
 
-MOVEMENT_SPEED = 5
+MOVEMENT_SPEED = 3
 UPDATES_PER_FRAME = 7
 GRAVITY = 0.65
 PLAYER_JUMP_SPEED = 13
@@ -18,14 +18,15 @@ LEFT_VIEWPORT_MARGIN = 250
 RIGHT_VIEWPORT_MARGIN = 250
 BOTTOM_VIEWPORT_MARGIN = 50
 TOP_VIEWPORT_MARGIN = 100
-# def load_texture_pair(filename):
-#     """
-#     Load a texture pair, with the second being a mirror image.
-#     """
-#     return [
-#         arcade.load_texture(filename, scale=CHARACTER_SCALING),
-#         arcade.load_texture(filename, scale=CHARACTER_SCALING, mirrored=True)
-#     ]
+
+def load_texture_pair(filename):
+    """
+    Load a texture pair, with the second being a mirror image.
+    """
+    return [
+        arcade.load_texture(filename, scale=CHARACTER_SCALING),
+        arcade.load_texture(filename, scale=CHARACTER_SCALING, mirrored=True)
+    ]
 
 # class PlayerCharacter(arcade.Sprite):
 #     def __init__(self):
@@ -51,37 +52,41 @@ TOP_VIEWPORT_MARGIN = 100
 #         # --- Load Textures ---
 
 #         # Images from 
-#         main_path = "cpt-2019-alex-s-shadow-realm/images/Alex Images/Owlet_Monster.png"
+#         main_path = "cpt-2019-alex-s-shadow-realm/images/Alex Images/animations/"
 #         # main_path = ":resources:images/animated_characters/female_person/femalePerson"
 
 
 #         # Load textures for idle standing
-#         self.idle_texture_pair = load_texture_pair("cpt-2019-alex-s-shadow-realm/images/Alex Images/Owlet_Monster_Idle_4.png")
+#         self.idle_texture_pair = load_texture_pair("cpt-2019-alex-s-shadow-realm/images/Alex Images/Owlet_Monster.png")
+#         self.idle_textures = []
+#         for i in range(4):
+#             texture = load_texture_pair(f"{main_path}idle00{i}.png")
+#             self.idle_textures.append(texture)
 
 #         # Load textures for walking
 #         self.walk_textures = []
 #         for i in range(6):
-#             texture = load_texture_pair("cpt-2019-alex-s-shadow-realm/images/Alex Images/Owlet_Monster_Walk_6.png")
+#             texture = load_texture_pair(f"{main_path}tile00{i}.png")
 #             self.walk_textures.append(texture)
 
-    # def update_animation(self, delta_time: float = 1/60):
+#     def update_animation(self, delta_time: float = 1/60):
 
-    #     # Figure out if we need to flip face left or right
-    #     if self.change_x < 0 and self.character_face_direction == RIGHT_FACING:
-    #         self.character_face_direction = LEFT_FACING
-    #     elif self.change_x > 0 and self.character_face_direction == LEFT_FACING:
-    #         self.character_face_direction = RIGHT_FACING
+#         # Figure out if we need to flip face left or right
+#         if self.change_x < 0 and self.character_face_direction == RIGHT_FACING:
+#             self.character_face_direction = LEFT_FACING
+#         elif self.change_x > 0 and self.character_face_direction == LEFT_FACING:
+#             self.character_face_direction = RIGHT_FACING
 
-    #     # Idle animation
-    #     if self.change_x == 0 and self.change_y == 0:
-    #         self.texture = self.idle_texture_pair[self.character_face_direction]
-    #         return
+#         # Idle animation
+#         if self.change_x == 0 and self.change_y == 0:
+#             self.texture = self.idle_texture_pair[self.character_face_direction]
+#             return
 
-    #     # Walking animation
-    #     self.cur_texture += 1
-    #     if self.cur_texture > 7 * UPDATES_PER_FRAME:
-    #         self.cur_texture = 0
-    #     self.texture = self.walk_textures[self.cur_texture // UPDATES_PER_FRAME][self.character_face_direction]
+#         # Walking animation
+#         self.cur_texture += 1
+#         if self.cur_texture < 7 * UPDATES_PER_FRAME:
+#             self.cur_texture = 0
+#         self.texture = self.walk_textures[self.cur_texture // UPDATES_PER_FRAME][self.character_face_direction]
 
 
 
@@ -105,24 +110,33 @@ class Alexlevel(arcade.View):
         self.physics_engine = None
 
         # Set up the player
-        image_source = "images/Alex Images/Owlet_Monster.png"
+        image_source = "cpt-2019-alex-s-shadow-realm/images/Alex Images/Owlet_Monster.png"
         self.player_sprite = arcade.Sprite(image_source, CHARACTER_SCALING)
         self.player_sprite.center_x = 64
         self.player_sprite.center_y = 128
         self.player_list.append(self.player_sprite)
+
+        # self.player_sprite = PlayerCharacter()
+
+        # self.player_sprite.center_x = 64
+        # self.player_sprite.center_y = 96
+        # self.player_sprite.scale = 0.8
+
+        # self.player_list.append(self.player_sprite)
+
 
         # Used to keep track of our scrolling
         self.view_bottom = 0
         self.view_left = 0
 
         self.score = 0
-        
-        self.background = arcade.load_texture("images/Alex Images/glacial_mountains_preview_lightened.png")
+
+        self.background = arcade.load_texture("cpt-2019-alex-s-shadow-realm/images/Alex Images/glacial_mountains_preview_lightened.png")
         
         # Create the ground
 
         for x in range(0, settings.WIDTH, 64):
-            wall = arcade.Sprite("images/Alex Images/128x128/GrassJoinHillLeft&Right.png", TILE_SCALING)
+            wall = arcade.Sprite("cpt-2019-alex-s-shadow-realm/images/Alex Images/128x128/GrassJoinHillLeft&Right.png", TILE_SCALING)
             wall.center_x = x
             wall.center_y = 32
             self.wall_list.append(wall)
@@ -133,7 +147,7 @@ class Alexlevel(arcade.View):
 
         for coordinate in coordinate_list:
             # Add a crate on the ground
-            wall = arcade.Sprite("images/Alex Images/128x128/GrassCliffMid.png", TILE_SCALING)
+            wall = arcade.Sprite("cpt-2019-alex-s-shadow-realm/images/Alex Images/128x128/GrassCliffMid.png", TILE_SCALING)
             wall.position = coordinate
             self.wall_list.append(wall)
         # Adding Coins
@@ -201,17 +215,7 @@ class Alexlevel(arcade.View):
             self.view_left += self.player_sprite.right - right_boundary
             changed = True
 
-        # Scroll up
-        top_boundary = self.view_bottom + settings.HEIGHT - TOP_VIEWPORT_MARGIN
-        if self.player_sprite.top > top_boundary:
-            self.view_bottom += self.player_sprite.top - top_boundary
-            changed = True
 
-        # Scroll down
-        bottom_boundary = self.view_bottom + BOTTOM_VIEWPORT_MARGIN
-        if self.player_sprite.bottom < bottom_boundary:
-            self.view_bottom -= bottom_boundary - self.player_sprite.bottom
-            changed = True
 
         if changed:
             # Only scroll to integers. Otherwise we end up with pixels that

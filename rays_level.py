@@ -2,27 +2,33 @@ import arcade
 import math
 import settings
 import json
+from typing import List
 
 
-
-#--------- currently updated to mark3---------
 WIDTH = settings.WIDTH
 HEIGHT = settings.HEIGHT
 background = arcade.load_texture("images/back.jpg")
 
-#------------------ Paste all classes here ----------------
 
-def count_score(num_list):
+def count_score(num_list: List["Coin"]) -> int:
     if len(num_list) == 0:
         return 0
-    elif num_list[0].time_collected is not None:
-        return (num_list[0].time_collected*num_list[0].collection_bonus
+    elif num_list[0].get_time_collected() is not None:
+        return (num_list[0].get_time_collected()*num_list[0].collection_bonus
                 + count_score(num_list[1:]))
     else:
         return 0 + count_score(num_list[1:])
 
 
-def check_name(name):
+def check_name(name: str) -> bool:
+    '''Check if name is already taken
+
+    Args:
+        name(str): name that needs to be checked
+    Returns:
+        boolean If the name is already in use
+    '''
+
     with open("scores.json", "r") as f:
         score_dictionary = json.load(f)
 
@@ -36,7 +42,16 @@ def check_name(name):
         return False
 
 
-def binary_search(lista, target):
+def binary_search(lista: List[int], target: int) -> int:
+    '''searches sorted list for position of target number
+
+    Args:
+        lista (list[int]): list to search
+        target (int): target number you are looking for
+    returns:
+        index location of target number
+    '''
+
     start = 0
     end = len(lista) - 1
     while start <= end:
@@ -50,7 +65,15 @@ def binary_search(lista, target):
     return -1
 
 
-def merge_sort(numbers):
+def merge_sort(numbers: List[int]) -> List[int]:
+    '''sorts list of ints
+
+    Args:
+        numbers (list[int]): list that needs to be sorted
+    Returns:
+        sorted list
+    '''
+
     if len(numbers) == 1:
         return numbers
     midpoint = len(numbers)//2
@@ -80,7 +103,17 @@ def merge_sort(numbers):
     return sorted_list
 
 
-def save_score(name=None, score=None):
+def save_score(name: str = None, score: int = None) -> List:
+    '''saves players score to file, as well as finds the players rank
+    using binary search and merge sort
+
+    Args:
+        name (str): players name
+        score (int): players score
+    Returns:
+        list containing players rank, score, and name
+    '''
+
     with open("scores.json", "r") as f:
         score_dictionary = json.load(f)
 
@@ -101,7 +134,12 @@ def save_score(name=None, score=None):
     return [len(score_list)-(binary_search(score_list, score)), score, name]
 
 
-def find_highscores():
+def find_highscores() -> List:
+    '''finds the three highest scores
+
+    Returns:
+        list of three highest names and scores
+    '''
     with open("scores.json", "r") as f:
         dictionary = json.load(f)
         data = []
@@ -129,7 +167,7 @@ class Player(arcade.Sprite):
         super().__init__(image, scale=0.25)
 
         # Create a variable to hold our speed. 'angle' is created by the parent
-        self.speed = 0
+        self._speed = 0   """ Set up the player """
         self.move_speed = 7.5
         self.turn_speed = 5
         self.center_x = 35
@@ -144,8 +182,8 @@ class Player(arcade.Sprite):
         self.angle += self.change_angle
 
         # Use math to find our change based on our speed and angle
-        self.center_x += -self.speed * math.sin(angle_rad)
-        self.center_y += self.speed * math.cos(angle_rad)
+        self.center_x += -self._speed * math.sin(angle_rad)
+        self.center_y += self._speed * math.cos(angle_rad)
 
         # keep player in screen
         if self.center_x < self.width/2:
@@ -156,6 +194,18 @@ class Player(arcade.Sprite):
             self.center_y = self.width/2
         if self.center_y > HEIGHT - 100 - self.width/2:
             self.center_y = HEIGHT - 100 - self.width/2
+
+    def get_speed(self) -> int:
+        return self._speed
+
+    def set_speed(self, speed: int) -> None:
+        self._speed = speed
+
+    def hit(self):
+        self.center_x = 35
+        self.center_y = 575
+        self.angle = 270
+        
 
 
 class Turret(arcade.Sprite):
@@ -180,7 +230,13 @@ class Turret(arcade.Sprite):
         self.center_x = center_x
         self.center_y = center_y
         self.angle = angle
-        self.activated = False
+        self._activated = False
+
+    def get_activation(self) -> bool:
+        return self._activated
+
+    def set_activation(self, new_value: bool) -> bool:
+        self._activated = new_value
 
 
 class SpinnyTurret(Turret):
@@ -245,7 +301,13 @@ class Coin(arcade.Sprite):
         self.center_x = center_x
         self.center_y = center_y
         self.collection_bonus = 50
-        self.time_collected = None
+        self._time_collected = None
+
+    def get_time_collected(self):
+        return self._time_collected
+
+    def set_time_collected(self, time):
+        self._time_collected = time
 
 
 class Diamond(Coin):
@@ -253,13 +315,9 @@ class Diamond(Coin):
         super().__init__(image, center_x, center_y)
         self.scale = 0.25
         self.collection_bonus = 500
-        self.time_collected = None
 
+# -------------- Paste all "my game code here" ----------------
 
-
-
-
-#-------------- Paste all "my game code here" ----------------
 
 class GameView(arcade.View):
     def __init__(self):
@@ -267,9 +325,6 @@ class GameView(arcade.View):
 
         arcade.set_background_color(arcade.color.BLACK)
         self.player = Player("images/rokit_ship.png")
-        self.barrier_on = True
-        self.frame_count = 0
-        self.score = 0
         self.turret_list = arcade.SpriteList()
         self.lasers = arcade.SpriteList()
         self.long_lasers = arcade.SpriteList()
@@ -278,6 +333,9 @@ class GameView(arcade.View):
         self.barrier_turrets = arcade.SpriteList()
         self.barriers = arcade.SpriteList()
         self.recur_list = []
+        self.barrier_on = True
+        self.frame_count = 0
+        self._score = 0
         self.reset_message = False
         self.show_time = 0
 
@@ -355,15 +413,15 @@ class GameView(arcade.View):
 
         # activate initial turrets
 
-        self.turret_list[0].activated = True
-        self.turret_list[1].activated = True
-        self.turret_list[2].activated = True
-        self.turret_list[3].activated = True
-        self.turret_list[4].activated = True
+        self.turret_list[0].set_activation(True)
+        self.turret_list[1].set_activation(True)
+        self.turret_list[2].set_activation(True)
+        self.turret_list[3].set_activation(True)
+        self.turret_list[4].set_activation(True)
 
     # class functions
 
-    def countdown(self):
+    def countdown(self) -> str:
         if self.frame_count < 90:
             return str(math.ceil((90-self.frame_count)/30))
         else:
@@ -387,8 +445,8 @@ class GameView(arcade.View):
         self.heart_list.draw()
         self.coin_list.draw()
 
-        arcade.draw_text(f"SCORE: {self.score}", 1050, 650, arcade.color.WHITE,
-                         30)
+        arcade.draw_text(f"SCORE: {self.get_score()}", 1050, 650,
+                         arcade.color.WHITE, 30)
 
         if self.frame_count < 120:
             arcade.draw_text(self.countdown(), WIDTH//2, HEIGHT//2,
@@ -425,12 +483,12 @@ class GameView(arcade.View):
 
         if self.frame_count % 120 == 0:
             for turret in self.turret_list:
-                if turret.activated is True:
+                if turret.get_activation() is True:
                     laser = Laser(turret)
                     self.lasers.append(laser)
 
         if self.frame_count % 40 == 0:
-            if self.smart_turret.activated is True:
+            if self.smart_turret.get_activation() is True:
                 laser = Laser(self.smart_turret)
                 self.lasers.append(laser)
 
@@ -446,9 +504,7 @@ class GameView(arcade.View):
             if hit is True:
                 laser.remove_from_sprite_lists()
 
-                self.player.center_x = 35
-                self.player.center_y = 575
-                self.player.angle = 270
+                self.player.hit()
                 self.heart_list[-1].remove_from_sprite_lists()
                 print(len(self.heart_list))
 
@@ -456,9 +512,7 @@ class GameView(arcade.View):
                 or self.player.collides_with_list(self.barrier_turrets)
                 or self.player.collides_with_list(self.barriers)):
 
-            self.player.center_x = 35
-            self.player.center_y = 575
-            self.player.angle = 270
+            self.player.hit()
             self.heart_list[-1].remove_from_sprite_lists()
             print(len(self.heart_list))
 
@@ -480,12 +534,12 @@ class GameView(arcade.View):
             hit = arcade.check_for_collision(coin, self.player)
             if hit is True:
                 coin.remove_from_sprite_lists()
-                coin.time_collected = 300-self.frame_count//60
+                coin.set_time_collected(300-self.frame_count//60)
 
-        self.score = count_score(self.recur_list)
+        self.set_score(count_score(self.recur_list))
 
-        if self.score > 9999999:
-            self.score = 9999999
+        if self.get_score() > 9999999:
+            self.set_score(9999999)
 
         # increase difficulty
 
@@ -493,25 +547,25 @@ class GameView(arcade.View):
             pass
 
         if len(self.coin_list) < 5:
-            self.turret_list[5].activated = True
+            self.turret_list[5].set_activation(True)
 
         if len(self.coin_list) < 3:
-            self.turret_list[6].activated = True
-            self.turret_list[7].activated = True
+            self.turret_list[6].set_activation(True)
+            self.turret_list[7].set_activation(True)
 
         # off barrier
 
         if len(self.coin_list) == 1:
             for barrier in self.barriers:
                 barrier.remove_from_sprite_lists()
-            self.smart_turret.activated = True
+            self.smart_turret.set_activation(True)
 
         # finish game
 
         if self.player.center_x > 1300 and self.player.center_y < 50:
             finish_view = FinishView()
-            self.score += 100*(300-self.frame_count//60)
-            finish_view.score = self.score
+            self._score += 100*(300-self.frame_count//60)
+            finish_view.score = self.get_score()
             finish_view.win = True
             finish_view.director = self.director
             self.window.show_view(finish_view)
@@ -520,7 +574,7 @@ class GameView(arcade.View):
 
         if len(self.heart_list) == 0:
             finish_view = FinishView()
-            finish_view.score = self.score
+            finish_view.score = self.get_score()
             finish_view.win = False
             finish_view.director = self.director
             self.window.show_view(finish_view)
@@ -537,10 +591,9 @@ class GameView(arcade.View):
 
         # moving
         if key == arcade.key.UP and self.frame_count > 120:
-            self.player.speed = self.player.move_speed
+            self.player.set_speed(self.player.move_speed)
         elif key == arcade.key.DOWN and self.frame_count > 120:
-            self.player.speed = -self.player.move_speed
-
+            self.player.set_speed(-self.player.move_speed)
         # turning
         elif key == arcade.key.LEFT:
             self.player.change_angle = self.player.turn_speed
@@ -551,15 +604,15 @@ class GameView(arcade.View):
 
         elif key == arcade.key.KEY_1:
             finish_view = FinishView()
-            self.score = 9999999
-            finish_view.score = self.score
+            self.set_score(9999999)
+            finish_view.score = self.get_score()
             finish_view.win = True
             finish_view.director = self.director
             self.window.show_view(finish_view)
 
         elif key == arcade.key.KEY_2:
             self.coin_list[0].remove_from_sprite_lists()
-            self.coin_list[0].time_collected = 300-self.frame_count//60
+            self.coin_list[0].set_time_collected(300-self.frame_count//60)
 
         elif key == arcade.key.KEY_3:
             with open("scores.json", "r") as f:
@@ -573,9 +626,15 @@ class GameView(arcade.View):
         """Called when the user releases a key. """
 
         if key == arcade.key.UP or key == arcade.key.DOWN:
-            self.player.speed = 0
+            self.player.set_speed(0)
         elif key == arcade.key.LEFT or key == arcade.key.RIGHT:
             self.player.change_angle = 0
+
+    def get_score(self):
+        return self._score
+
+    def set_score(self, newscore):
+        self._score = newscore
 
 
 class FinishView(arcade.View):
@@ -698,6 +757,9 @@ class ScoreView(arcade.View):
                 arcade.draw_text("NICE JOB YOU MADE THE BOARD!", WIDTH//2, top,
                                  arcade.color.NEON_GREEN, 50, align="center",
                                  anchor_x="center", anchor_y="center")
+            arcade.draw_text("PRESS ENTER TO CONTINUE  ->", 1100, 50,
+                             arcade.color.RED, 25, align="center",
+                             anchor_x="center", anchor_y="center")
 
         # name taken
         if self.name_taken is True:
@@ -729,7 +791,7 @@ class ScoreView(arcade.View):
                 and len(self.name) < 8
                 and self.submit is False):
             self.name += (chr(key)).upper()
-        
+
         elif (key == arcade.key.ENTER) and self.submit is True:
             self.director.next_view()
 

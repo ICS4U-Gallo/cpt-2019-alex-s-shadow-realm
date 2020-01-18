@@ -16,7 +16,7 @@ class Director(arcade.Window):
         self.views = [
             MenuView,
             GameView,
-            #Alexlevel,
+            Alexlevel,
             Alanslevel,
             JeanlucView
         ]
