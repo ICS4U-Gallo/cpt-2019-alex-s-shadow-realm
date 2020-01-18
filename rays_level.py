@@ -159,15 +159,20 @@ def find_highscores() -> List:
 # classes
 
 class Player(arcade.Sprite):
+    '''Player class
+    Attributes:
+        image (image file): image
+        center_x (int): x pos of turret
+        center_y (int): y pos of turret
+        angle (int): angle of turret
+        '''
 
     def __init__(self, image):
-        """ Set up the player """
 
         # Call the parent init
         super().__init__(image, scale=0.25)
 
-        # Create a variable to hold our speed. 'angle' is created by the parent
-        self._speed = 0   """ Set up the player """
+        self._speed = 0
         self.move_speed = 7.5
         self.turn_speed = 5
         self.center_x = 35
@@ -205,7 +210,6 @@ class Player(arcade.Sprite):
         self.center_x = 35
         self.center_y = 575
         self.angle = 270
-        
 
 
 class Turret(arcade.Sprite):
