@@ -7,7 +7,7 @@ from typing import List, Union
 # set screen size and define background
 WIDTH = settings.WIDTH
 HEIGHT = settings.HEIGHT
-background = arcade.load_texture("images/back.jpg")
+background = arcade.load_texture("images/ray_images/back.jpg")
 
 # Define global functions
 
@@ -38,7 +38,7 @@ def check_name(name: str) -> bool:
         boolean If the name is already in use
     '''
 
-    with open("scores.json", "r") as f:
+    with open("rays_scores.json", "r") as f:
         score_dictionary = json.load(f)
 
     name_list = []
@@ -123,7 +123,7 @@ def save_score(name: str = None, score: int = None) -> List:
         list containing players rank, score, and name
     '''
 
-    with open("scores.json", "r") as f:
+    with open("rays_scores.json", "r") as f:
         score_dictionary = json.load(f)
 
     name_list = []
@@ -132,7 +132,7 @@ def save_score(name: str = None, score: int = None) -> List:
 
     score_dictionary[name] = score
 
-    with open("scores.json", "w") as f:
+    with open("rays_scores.json", "w") as f:
         json.dump(score_dictionary, f)
 
     score_list = []
@@ -149,7 +149,7 @@ def find_highscores() -> Union[int, str]:
     Returns:
         list of three highest names and scores
     '''
-    with open("scores.json", "r") as f:
+    with open("rays_scores.json", "r") as f:
         dictionary = json.load(f)
         data = []
     for i in range(3):
@@ -339,7 +339,7 @@ class GameView(arcade.View):
         super().__init__()
 
         arcade.set_background_color(arcade.color.BLACK)
-        self.player = Player("images/rokit_ship.png")
+        self.player = Player("images/ray_images/rokit_ship.png")
         self.turret_list = arcade.SpriteList()
         self.lasers = arcade.SpriteList()
         self.long_lasers = arcade.SpriteList()
@@ -356,66 +356,67 @@ class GameView(arcade.View):
 
         # set up turrets
 
-        turret = Turret("images/turret.png",  1200, 600, 180)
+        turret = Turret("images/ray_images/turret.png",  1200, 600, 180)
         self.turret_list.append(turret)
-        turret = Turret("images/turret.png",  450, 100, 0)
+        turret = Turret("images/ray_images/turret.png",  450, 100, 0)
         self.turret_list.append(turret)
-        turret = Turret("images/turret.png",  1100, 125, 90)
+        turret = Turret("images/ray_images/turret.png",  1100, 125, 90)
         self.turret_list.append(turret)
-        turret = Turret("images/turret.png",  1300, 250, 90)
+        turret = Turret("images/ray_images/turret.png",  1300, 250, 90)
         self.turret_list.append(turret)
-        turret = Turret("images/turret.png",  900, 35, 0)
+        turret = Turret("images/ray_images/turret.png",  900, 35, 0)
         self.turret_list.append(turret)
-        turret = SpinnyTurret("images/turret.png",  800, 450, 90)
+        turret = SpinnyTurret("images/ray_images/turret.png",  800, 450, 90)
         self.turret_list.append(turret)
-        turret = SpinnyTurret("images/turret.png",  1000, 600, 269)
+        turret = SpinnyTurret("images/ray_images/turret.png",  1000, 600, 269)
         self.turret_list.append(turret)
-        turret = SpinnyTurret("images/turret.png",  600, 600, 91)
+        turret = SpinnyTurret("images/ray_images/turret.png",  600, 600, 91)
         self.turret_list.append(turret)
 
-        self.smart_turret = SmartTurret("images/turret.png",  25, 25, 300)
+        self.smart_turret = SmartTurret("images/ray_images/turret.png",  25,
+                                        25, 300)
 
-        barrier_turret = Turret("images/turret.png",  39, 300, 270)
+        barrier_turret = Turret("images/ray_images/turret.png",  39, 300, 270)
         self.barrier_turrets.append(barrier_turret)
-        barrier_turret = Turret("images/turret.png",  300, 39, 0)
+        barrier_turret = Turret("images/ray_images/turret.png",  300, 39, 0)
         self.barrier_turrets.append(barrier_turret)
 
         # set up hearts
 
-        heart = Heart("images/heart.jpg", 1)
+        heart = Heart("images/ray_images/heart.jpg", 1)
         self.heart_list.append(heart)
-        heart = Heart("images/heart.jpg", 2)
+        heart = Heart("images/ray_images/heart.jpg", 2)
         self.heart_list.append(heart)
-        heart = Heart("images/heart.jpg", 3)
+        heart = Heart("images/ray_images/heart.jpg", 3)
         self.heart_list.append(heart)
-        heart = Heart("images/heart.jpg", 4)
+        heart = Heart("images/ray_images/heart.jpg", 4)
         self.heart_list.append(heart)
-        heart = Heart("images/heart.jpg", 5)
+        heart = Heart("images/ray_images/heart.jpg", 5)
         self.heart_list.append(heart)
 
         # set up coins
 
-        coin = Coin("images/coin.png", 800, 550)
+        coin = Coin("images/ray_images/coin.png", 800, 550)
         self.coin_list.append(coin)
         self.recur_list.append(coin)
 
-        coin = Coin("images/coin.png", 380, 50)
+        coin = Coin("images/ray_images/coin.png", 380, 50)
         self.coin_list.append(coin)
         self.recur_list.append(coin)
 
-        coin = Coin("images/coin.png", 950, 50)
+        coin = Coin("images/ray_images/coin.png", 950, 50)
         self.coin_list.append(coin)
         self.recur_list.append(coin)
 
-        coin = Coin("images/coin.png", 1250, 500)
+        coin = Coin("images/ray_images/coin.png", 1250, 500)
         self.coin_list.append(coin)
         self.recur_list.append(coin)
 
-        coin = Coin("images/coin.png", 650, 350)
+        coin = Coin("images/ray_images/coin.png", 650, 350)
         self.coin_list.append(coin)
         self.recur_list.append(coin)
 
-        coin = Diamond("images/dimond.png", 100, 100)
+        coin = Diamond("images/ray_images/dimond.png", 100, 100)
         self.coin_list.append(coin)
         self.recur_list.append(coin)
 
@@ -456,7 +457,7 @@ class GameView(arcade.View):
                                       background)
         arcade.draw_xywh_rectangle_textured(1280, 0, 70, 50,
                                             arcade.load_texture
-                                            ("images/finish box.jpg"))
+                                            ("images/ray_images/finish box.jpg"))
         self.barriers.draw()
         self.lasers.draw()
         self.barrier_turrets.draw()
@@ -632,10 +633,10 @@ class GameView(arcade.View):
 
         # reset scoreboard
         elif key == arcade.key.KEY_3:
-            with open("scores.json", "r") as f:
+            with open("rays_scores.json", "r") as f:
                 score_dictionary = json.load(f)
             score_dictionary = {" ": 0, "  ": 0, "   ": 0}
-            with open("scores.json", "w") as f:
+            with open("rays_scores.json", "w") as f:
                 json.dump(score_dictionary, f)
             self.reset_message = True
 
