@@ -110,7 +110,7 @@ class Alexlevel(arcade.View):
         self.physics_engine = None
 
         # Set up the player
-        image_source = "cpt-2019-alex-s-shadow-realm/images/Alex Images/Owlet_Monster.png"
+        image_source = "images/Alex Images/Owlet_Monster.png"
         self.player_sprite = arcade.Sprite(image_source, CHARACTER_SCALING)
         self.player_sprite.center_x = 64
         self.player_sprite.center_y = 128
@@ -131,12 +131,12 @@ class Alexlevel(arcade.View):
 
         self.score = 0
 
-        self.background = arcade.load_texture("cpt-2019-alex-s-shadow-realm/images/Alex Images/glacial_mountains_preview_lightened.png")
+        self.background = arcade.load_texture("images/Alex Images/glacial_mountains_preview_lightened.png")
         
         # Create the ground
 
         for x in range(0, settings.WIDTH, 64):
-            wall = arcade.Sprite("cpt-2019-alex-s-shadow-realm/images/Alex Images/128x128/GrassJoinHillLeft&Right.png", TILE_SCALING)
+            wall = arcade.Sprite("images/Alex Images/128x128/GrassJoinHillLeft&Right.png", TILE_SCALING)
             wall.center_x = x
             wall.center_y = 32
             self.wall_list.append(wall)
@@ -147,7 +147,7 @@ class Alexlevel(arcade.View):
 
         for coordinate in coordinate_list:
             # Add a crate on the ground
-            wall = arcade.Sprite("cpt-2019-alex-s-shadow-realm/images/Alex Images/128x128/GrassCliffMid.png", TILE_SCALING)
+            wall = arcade.Sprite("images/Alex Images/128x128/GrassCliffMid.png", TILE_SCALING)
             wall.position = coordinate
             self.wall_list.append(wall)
         # Adding Coins
