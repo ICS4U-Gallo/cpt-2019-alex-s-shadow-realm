@@ -2,15 +2,24 @@ import arcade
 import math
 import settings
 import json
-from typing import List
+from typing import List, Union
 
-
+# set screen size and define background
 WIDTH = settings.WIDTH
 HEIGHT = settings.HEIGHT
 background = arcade.load_texture("images/back.jpg")
 
+# Define global functions
+
 
 def count_score(num_list: List["Coin"]) -> int:
+    '''recursive function to calculate players score
+
+    Args:
+        num_list ("Coin" class): list of available coins in the game
+    Retuns:
+        players current score as an int
+    '''
     if len(num_list) == 0:
         return 0
     elif num_list[0].get_time_collected() is not None:
@@ -134,7 +143,7 @@ def save_score(name: str = None, score: int = None) -> List:
     return [len(score_list)-(binary_search(score_list, score)), score, name]
 
 
-def find_highscores() -> List:
+def find_highscores() -> Union[int, str]:
     '''finds the three highest scores
 
     Returns:
@@ -156,7 +165,7 @@ def find_highscores() -> List:
     return data
 
 
-# classes
+# classes to be used
 
 class Player(arcade.Sprite):
     '''Player class
@@ -206,7 +215,9 @@ class Player(arcade.Sprite):
     def set_speed(self, speed: int) -> None:
         self._speed = speed
 
-    def hit(self):
+    def hit(self) -> None:
+        '''reset position of player after collision
+            '''
         self.center_x = 35
         self.center_y = 575
         self.angle = 270
@@ -320,8 +331,8 @@ class Diamond(Coin):
         self.scale = 0.25
         self.collection_bonus = 500
 
-# -------------- Paste all "my game code here" ----------------
 
+# arcade view classes
 
 class GameView(arcade.View):
     def __init__(self):
@@ -426,6 +437,12 @@ class GameView(arcade.View):
     # class functions
 
     def countdown(self) -> str:
+        '''Manages the countdown timer at the beginning of the game
+
+        Returns:
+            string of what the timer should display
+            '''
+
         if self.frame_count < 90:
             return str(math.ceil((90-self.frame_count)/30))
         else:
@@ -452,12 +469,14 @@ class GameView(arcade.View):
         arcade.draw_text(f"SCORE: {self.get_score()}", 1050, 650,
                          arcade.color.WHITE, 30)
 
+        # draw countdown
         if self.frame_count < 120:
             arcade.draw_text(self.countdown(), WIDTH//2, HEIGHT//2,
                              arcade.color.WHITE, 500,
                              align="center", anchor_x="center",
                              anchor_y="center")
 
+        # draw reset message
         if self.reset_message is True:
             arcade.draw_text("SCORE BOARD HAS\nBEEN RESET", WIDTH//2, 500,
                              arcade.color.RED, 100, align="center",
@@ -474,9 +493,13 @@ class GameView(arcade.View):
         self.lasers.update()
         self.coin_list.update()
         self.smart_turret.update(self.player.center_x, self.player.center_y)
+        self.set_score(count_score(self.recur_list))
+
+        # set score cap
+        if self.get_score() > 9999999:
+            self.set_score(9999999)
 
         # spinny turret
-
         if self.frame_count % 3 == 0:
             for turret in self.turret_list[5:8]:
                 turret.angle -= turret.turn_speed
@@ -484,7 +507,6 @@ class GameView(arcade.View):
                     turret.turn_speed = -turret.turn_speed
 
         # shoot lasers
-
         if self.frame_count % 120 == 0:
             for turret in self.turret_list:
                 if turret.get_activation() is True:
@@ -501,8 +523,7 @@ class GameView(arcade.View):
                 laser = Laser(self.smart_turret)
                 self.lasers.append(laser)
 
-        # check if laser hit
-
+        # check if laser hit player
         for laser in self.lasers:
             hit = arcade.check_for_collision(laser, self.player)
             if hit is True:
@@ -512,6 +533,7 @@ class GameView(arcade.View):
                 self.heart_list[-1].remove_from_sprite_lists()
                 print(len(self.heart_list))
 
+        # check if player hit turret
         if (self.player.collides_with_list(self.turret_list)
                 or self.player.collides_with_list(self.barrier_turrets)
                 or self.player.collides_with_list(self.barriers)):
@@ -521,7 +543,6 @@ class GameView(arcade.View):
             print(len(self.heart_list))
 
         # kill laser when it leaves screen to save memory
-
         for laser in self.lasers:
             if laser.top < 0:
                 laser.remove_from_sprite_lists()
@@ -533,23 +554,13 @@ class GameView(arcade.View):
                 laser.remove_from_sprite_lists()
 
         # collect coins
-
         for coin in self.coin_list:
             hit = arcade.check_for_collision(coin, self.player)
             if hit is True:
                 coin.remove_from_sprite_lists()
                 coin.set_time_collected(300-self.frame_count//60)
 
-        self.set_score(count_score(self.recur_list))
-
-        if self.get_score() > 9999999:
-            self.set_score(9999999)
-
         # increase difficulty
-
-        if len(self.coin_list) < 6:
-            pass
-
         if len(self.coin_list) < 5:
             self.turret_list[5].set_activation(True)
 
@@ -558,14 +569,12 @@ class GameView(arcade.View):
             self.turret_list[7].set_activation(True)
 
         # off barrier
-
         if len(self.coin_list) == 1:
             for barrier in self.barriers:
                 barrier.remove_from_sprite_lists()
             self.smart_turret.set_activation(True)
 
         # finish game
-
         if self.player.center_x > 1300 and self.player.center_y < 50:
             finish_view = FinishView()
             self._score += 100*(300-self.frame_count//60)
@@ -575,7 +584,6 @@ class GameView(arcade.View):
             self.window.show_view(finish_view)
 
         # die
-
         if len(self.heart_list) == 0:
             finish_view = FinishView()
             finish_view.score = self.get_score()
@@ -583,6 +591,7 @@ class GameView(arcade.View):
             finish_view.director = self.director
             self.window.show_view(finish_view)
 
+        # display message if scoreboard gets reset
         if self.reset_message is True:
             self.show_time += 1
         if self.show_time > 60:
@@ -598,6 +607,7 @@ class GameView(arcade.View):
             self.player.set_speed(self.player.move_speed)
         elif key == arcade.key.DOWN and self.frame_count > 120:
             self.player.set_speed(-self.player.move_speed)
+
         # turning
         elif key == arcade.key.LEFT:
             self.player.change_angle = self.player.turn_speed
@@ -606,6 +616,7 @@ class GameView(arcade.View):
 
         # cheat codes in case you suck
 
+        # win game with max points
         elif key == arcade.key.KEY_1:
             finish_view = FinishView()
             self.set_score(9999999)
@@ -614,10 +625,12 @@ class GameView(arcade.View):
             finish_view.director = self.director
             self.window.show_view(finish_view)
 
+        # collect a coin
         elif key == arcade.key.KEY_2:
             self.coin_list[0].remove_from_sprite_lists()
             self.coin_list[0].set_time_collected(300-self.frame_count//60)
 
+        # reset scoreboard
         elif key == arcade.key.KEY_3:
             with open("scores.json", "r") as f:
                 score_dictionary = json.load(f)
@@ -626,8 +639,8 @@ class GameView(arcade.View):
                 json.dump(score_dictionary, f)
             self.reset_message = True
 
+    # stop movement when key is released
     def on_key_release(self, key, modifiers):
-        """Called when the user releases a key. """
 
         if key == arcade.key.UP or key == arcade.key.DOWN:
             self.player.set_speed(0)
@@ -652,6 +665,7 @@ class FinishView(arcade.View):
             arcade.draw_text("YOU LOSE", WIDTH//2, 550, arcade.color.BLACK,
                              100, align="center", anchor_x="center",
                              anchor_y="center")
+
         elif self.win is True:
             arcade.set_background_color(arcade.color.GREEN)
             arcade.draw_text("YOU WIN", WIDTH//2, 550, arcade.color.BLACK, 100,
@@ -659,7 +673,6 @@ class FinishView(arcade.View):
                              anchor_y="center")
 
         # buttons
-
         arcade.draw_text(f"YOUR SCORE WAS: {self.score}", WIDTH//2, 450,
                          arcade.color.BLACK, 50, align="center",
                          anchor_x="center", anchor_y="center")
@@ -675,7 +688,6 @@ class FinishView(arcade.View):
                          anchor_x="center", anchor_y="center")
 
     # click buttons
-
     def on_mouse_press(self, _x, _y, _button, _modifiers):
 
         if WIDTH//2 - 150 < _x < WIDTH//2 + 150 and 250 < _y < 350:
@@ -705,11 +717,12 @@ class ScoreView(arcade.View):
         # typing name
         if self.submit is False:
             arcade.draw_text("ENTER NAME:", 100, 310, arcade.color.WHITE, 80,)
-
             arcade.draw_text(self.name, 750, 310, arcade.color.WHITE, 80)
 
-        # highscore
+        # draw leaderboard
         else:
+
+            # leaderbaord headers
             arcade.draw_text("HIGHSCORES", WIDTH//2, 600,
                              arcade.color.AQUA, 120,
                              align="center", anchor_x="center",
@@ -727,8 +740,8 @@ class ScoreView(arcade.View):
                              align="center", anchor_x="center",
                              anchor_y="center")
 
+            # create top 3 scores and names
             leaderboard = (find_highscores())
-
             for i in range(6):
                 if leaderboard[i] == 0:
                     leaderboard[i] = " "
@@ -746,9 +759,10 @@ class ScoreView(arcade.View):
                                  leaderboard[index + 2], 50)
                 arcade.draw_text(str(index//3 + 1) + suffix[index//3], 250,
                                  top, leaderboard[index + 2], 50)
-
                 top -= 75
                 index += 3
+
+            # if position not in top 3 display position and score
             if self.stats[0] > 3:
                 top -= 25
                 arcade.draw_text(str(self.stats[2]), 875, top,
@@ -757,6 +771,8 @@ class ScoreView(arcade.View):
                                  arcade.color.AFRICAN_VIOLET, 50)
                 arcade.draw_text(str(self.stats[0]) + suffix[3], 250, top,
                                  arcade.color.AFRICAN_VIOLET, 50)
+
+            # if made top 3 write nice message
             else:
                 arcade.draw_text("NICE JOB YOU MADE THE BOARD!", WIDTH//2, top,
                                  arcade.color.NEON_GREEN, 50, align="center",
@@ -765,25 +781,22 @@ class ScoreView(arcade.View):
                              arcade.color.RED, 25, align="center",
                              anchor_x="center", anchor_y="center")
 
-        # name taken
+        # display name taken message
         if self.name_taken is True:
             arcade.draw_text("NAME ALREADY TAKEN", WIDTH//2, 500,
                              arcade.color.RED, 80, align="center",
                              anchor_x="center", anchor_y="center")
 
-    # flash message if name taken
-
     def update(self, delta_time):
 
+        # flash message if name taken
         if self.name_taken is True:
             self.show_time += 1
-
         if self.show_time > 60:
             self.name_taken = False
             self.show_time = 0
 
     # type name
-
     def on_key_press(self, key, modifiers):
         if (key == arcade.key.BACKSPACE
            and len(self.name) > 1
