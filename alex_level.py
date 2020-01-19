@@ -20,7 +20,7 @@ SCROLL_SPEED = 5
 LEFT_VIEWPORT_MARGIN = 100
 RIGHT_VIEWPORT_MARGIN = 250
 
-GRID_PIXEL_SIZE = (CHARACTER_SCALING * TILE_SCALING)
+GRID_PIXEL_SIZE = (TILE_SCALING)
 
 def load_texture_pair(filename):
     """
@@ -89,26 +89,6 @@ class Alexlevel(arcade.View):
         self.end_of_map = 0
         # self.background = arcade.load_texture("images/Alex Images/glacial_mountains_preview_lightened.png")
         
-        # Create the ground
-
-        # for x in range(-settings.WIDTH, settings.WIDTH, 64):
-        #     wall = arcade.Sprite("images/Alex Images/128x128/GrassJoinHillLeft&Right.png", TILE_SCALING)
-        #     wall.center_x = x
-        #     wall.center_y = 32
-        #     self.wall_list.append(wall)
-
-        # coordinate_list = [[500, 200],
-        #                    [564, 200],
-        #                    [768, 96]]
-
-        # for coordinate in coordinate_list:
-        #     # Add a crate on the ground
-        #     wall = arcade.Sprite("images/Alex Images/128x128/GrassCliffMid.png", TILE_SCALING)
-        #     wall.position = coordinate
-        #     self.wall_list.append(wall)
-        # # Adding Coins
-
-        self.end_of_map = my_map.map_size.width * GRID_PIXEL_SIZE
 
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
 
@@ -161,8 +141,15 @@ class Alexlevel(arcade.View):
         for coin in coin_hit_list:
             # Remove the coin
             coin.remove_from_sprite_lists()
+            self.score += 1
+                
 
-        # if self.player_sprite.center_x >= self.end_of_map:        
+        if self.player_sprite.center_x >= 2900:
+            finish_view = FinishView()
+            self.win = True
+            print(f"Your Score: {self.score}")
+
+
         # end game here
 
 
@@ -193,6 +180,42 @@ class Alexlevel(arcade.View):
                                 settings.WIDTH + self.view_left,
                                 self.view_bottom,
                                 settings.HEIGHT + self.view_bottom)
+
+
+class FinishView(arcade.View):
+
+    def on_draw(self):
+        arcade.start_render()
+
+        # print win/lose screen
+        if self.win is False:
+            arcade.set_background_color(arcade.color.RED)
+            arcade.draw_text("YOU LOSE", WIDTH//2, 550, arcade.color.BLACK,
+                             100, align="center", anchor_x="center",
+                             anchor_y="center")
+        elif self.win is True:
+            arcade.set_background_color(arcade.color.GREEN)
+            arcade.draw_text("YOU WIN", WIDTH//2, 550, arcade.color.BLACK, 100,
+                             align="center", anchor_x="center",
+                             anchor_y="center")
+
+        # buttons
+
+        arcade.draw_text(f"YOUR SCORE WAS: {self.score}", WIDTH//2, 450,
+                         arcade.color.BLACK, 50, align="center",
+                         anchor_x="center", anchor_y="center")
+        arcade.draw_rectangle_filled(WIDTH//2, 300, 300, 100,
+                                     arcade.color.BLACK)
+        arcade.draw_rectangle_filled(WIDTH//2, 100, 300, 100,
+                                     arcade.color.BLACK)
+        arcade.draw_text("CLICK TO TRY  \n AGAIN", WIDTH//2, 300,
+                         arcade.color.WHITE, 25, align="center",
+                         anchor_x="center", anchor_y="center")
+        arcade.draw_text("CLICK TO SUBMIT  \n SCORE", WIDTH//2, 100,
+                         arcade.color.WHITE, 25, align="center",
+                         anchor_x="center", anchor_y="center")
+
+
 
 if __name__ == "__main__":
     """This section of code will allow you to run your View
