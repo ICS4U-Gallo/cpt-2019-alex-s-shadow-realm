@@ -20,6 +20,7 @@ SCROLL_SPEED = 5
 LEFT_VIEWPORT_MARGIN = 100
 RIGHT_VIEWPORT_MARGIN = 250
 
+GRID_PIXEL_SIZE = (CHARACTER_SCALING * TILE_SCALING)
 
 def load_texture_pair(filename):
     """
@@ -85,7 +86,7 @@ class Alexlevel(arcade.View):
         self.view_left = 0
 
         self.score = 0
-
+        self.end_of_map = 0
         # self.background = arcade.load_texture("images/Alex Images/glacial_mountains_preview_lightened.png")
         
         # Create the ground
@@ -107,7 +108,7 @@ class Alexlevel(arcade.View):
         #     self.wall_list.append(wall)
         # # Adding Coins
 
-
+        self.end_of_map = my_map.map_size.width * GRID_PIXEL_SIZE
 
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
 
@@ -153,6 +154,16 @@ class Alexlevel(arcade.View):
         # Move the player with the physics engine
 
         self.physics_engine.update()
+
+        coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,
+                                                             self.coin_list)
+                                                             
+        for coin in coin_hit_list:
+            # Remove the coin
+            coin.remove_from_sprite_lists()
+
+        # if self.player_sprite.center_x >= self.end_of_map:        
+        # end game here
 
 
         changed = False
