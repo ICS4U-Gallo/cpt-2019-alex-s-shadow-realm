@@ -8,12 +8,8 @@ TILE_SCALING = 0.5
 # COIN_SCALING = 0.5
 WIDTH = settings.WIDTH
 HEIGHT = settings.HEIGHT
-# Constants used to track if the player is facing left or right
-RIGHT_FACING = 0
-LEFT_FACING = 1
 
 MOVEMENT_SPEED = 4
-UPDATES_PER_FRAME = 7
 GRAVITY = 0.65
 PLAYER_JUMP_SPEED = 13
 
@@ -22,7 +18,6 @@ background = arcade.load_texture("images/Alex Images/glacial_mountains_preview_l
 LEFT_VIEWPORT_MARGIN = 150
 RIGHT_VIEWPORT_MARGIN = 500
 
-GRID_PIXEL_SIZE = (TILE_SCALING)
 
 
 def count_points(score: List[int]) -> int:
@@ -296,13 +291,13 @@ class Alexlevel(arcade.View):
             self.score.append(1)
 
         # end game here
-        if self.player_sprite.center_x <= 150 and self.player_sprite.center_y >= 50:
+        if self.player_sprite.center_x <= 150 and self.player_sprite.center_y >= 650:
             self.win = True
 
             finish_view = FinishView()
             time = int(self.total_time)
 
-            self.score = count_points(self.score)
+            self.score =  count_points(self.score)
             finish_view.score = self.score
             finish_view.win = True
             finish_view.director = self.director
