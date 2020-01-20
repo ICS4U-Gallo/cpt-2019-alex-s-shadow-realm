@@ -1,6 +1,7 @@
 import arcade
 import json
 import settings
+import math
 from typing import List, Union
 CHARACTER_SCALING = 1.5
 TILE_SCALING = 0.5
@@ -35,15 +36,21 @@ def load_texture_pair(filename):
         arcade.load_texture(filename, scale=CHARACTER_SCALING, mirrored=True)
     ]
 
-def count_score(score: int) -> int:
-    if score >= 10:
-        return score
-    #     return 0
-    # elif num_list[0].get_time_collected() is not None:
-    #     return (num_list[0].get_time_collected()*num_list[0].collection_bonus
-    #             + count_score(num_list[1:]))
+def count_score(num_list: List["Coin"]) -> int:
+    '''recursive function to calculate players score
+
+    Args:
+        num_list ("Coin" class): list of available coins in the game
+    Retuns:
+        players current score as an int
+    '''
+    if len(num_list) == 0:
+        return 0
+    elif num_list[0].get_time_collected() is not None:
+        return (num_list[0].get_time_collected()*num_list[0].collection_bonus
+                + count_score(num_list[1:]))
     else:
-        return 0 + count_score(score[1:])
+        return 0 + count_score(num_list[1:])
 
 
 def check_name(name: str) -> bool:
@@ -54,23 +61,21 @@ def check_name(name: str) -> bool:
     Returns:
         boolean If the name is already in use
     '''
-    print(name)
-    with open("alexscores.json", "r") as f:
-        print("ok")
-        the_scores = json.load(f)
-        print(the_scores)
 
-        name_list = []
-        for key in the_scores.keys():
-            name_list.append(key)
-            print("ok")
-        if name not in name_list:
-            return True
-        else:
-            return False
+    with open("rays_scores.json", "r") as f:
+        score_dictionary = json.load(f)
+
+    name_list = []
+    for key in score_dictionary.keys():
+        name_list.append(key)
+
+    if name not in name_list:
+        return True
+    else:
+        return False
 
 
-def binary_search(lista, target: int) -> int:
+def binary_search(lista: List[int], target: int) -> int:
     '''searches sorted list for position of target number
 
     Args:
@@ -142,7 +147,7 @@ def save_score(name: str = None, score: int = None) -> List:
         list containing players rank, score, and name
     '''
 
-    with open("alexscores.json", "r") as f:
+    with open("rays_scores.json", "r") as f:
         score_dictionary = json.load(f)
 
     name_list = []
@@ -151,7 +156,7 @@ def save_score(name: str = None, score: int = None) -> List:
 
     score_dictionary[name] = score
 
-    with open("alexscores.json", "w") as f:
+    with open("rays_scores.json", "w") as f:
         json.dump(score_dictionary, f)
 
     score_list = []
@@ -162,17 +167,15 @@ def save_score(name: str = None, score: int = None) -> List:
     return [len(score_list)-(binary_search(score_list, score)), score, name]
 
 
-def find_highscores() -> List:
+def find_highscores() -> Union[int, str]:
     '''finds the three highest scores
 
     Returns:
         list of three highest names and scores
     '''
-    with open("alexscores.json", "r") as f:
+    with open("rays_scores.json", "r") as f:
         dictionary = json.load(f)
-
-
-    data = []
+        data = []
     for i in range(3):
         high_value = 0
         high_key = None
@@ -183,7 +186,8 @@ def find_highscores() -> List:
         data.append(high_key)
         data.append(high_value)
         del dictionary[high_key]
-    return data#
+    return data
+
 class Alexlevel(arcade.View):
 
 
@@ -403,16 +407,17 @@ class ScoreView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_texture_rectangle(settings.WIDTH//2, settings.HEIGHT//2, settings.WIDTH, settings.HEIGHT,
+        arcade.draw_texture_rectangle(WIDTH//2, HEIGHT//2, WIDTH, HEIGHT,
                                       background)
         # typing name
         if self.submit is False:
             arcade.draw_text("ENTER NAME:", 100, 310, arcade.color.WHITE, 80,)
-
             arcade.draw_text(self.name, 750, 310, arcade.color.WHITE, 80)
 
-        # highscore
+        # draw leaderboard
         else:
+
+            # leaderbaord headers
             arcade.draw_text("HIGHSCORES", WIDTH//2, 600,
                              arcade.color.AQUA, 120,
                              align="center", anchor_x="center",
@@ -430,8 +435,8 @@ class ScoreView(arcade.View):
                              align="center", anchor_x="center",
                              anchor_y="center")
 
+            # create top 3 scores and names
             leaderboard = (find_highscores())
-
             for i in range(6):
                 if leaderboard[i] == 0:
                     leaderboard[i] = " "
@@ -449,9 +454,10 @@ class ScoreView(arcade.View):
                                  leaderboard[index + 2], 50)
                 arcade.draw_text(str(index//3 + 1) + suffix[index//3], 250,
                                  top, leaderboard[index + 2], 50)
-
                 top -= 75
                 index += 3
+
+            # if position not in top 3 display position and score
             if self.stats[0] > 3:
                 top -= 25
                 arcade.draw_text(str(self.stats[2]), 875, top,
@@ -460,6 +466,8 @@ class ScoreView(arcade.View):
                                  arcade.color.AFRICAN_VIOLET, 50)
                 arcade.draw_text(str(self.stats[0]) + suffix[3], 250, top,
                                  arcade.color.AFRICAN_VIOLET, 50)
+
+            # if made top 3 write nice message
             else:
                 arcade.draw_text("NICE JOB YOU MADE THE BOARD!", WIDTH//2, top,
                                  arcade.color.NEON_GREEN, 50, align="center",
@@ -468,25 +476,22 @@ class ScoreView(arcade.View):
                              arcade.color.RED, 25, align="center",
                              anchor_x="center", anchor_y="center")
 
-        # name taken
+        # display name taken message
         if self.name_taken is True:
             arcade.draw_text("NAME ALREADY TAKEN", WIDTH//2, 500,
                              arcade.color.RED, 80, align="center",
                              anchor_x="center", anchor_y="center")
 
-    # flash message if name taken
-
     def update(self, delta_time):
 
+        # flash message if name taken
         if self.name_taken is True:
             self.show_time += 1
-
         if self.show_time > 60:
             self.name_taken = False
             self.show_time = 0
 
     # type name
-
     def on_key_press(self, key, modifiers):
         if (key == arcade.key.BACKSPACE
            and len(self.name) > 1
@@ -504,7 +509,9 @@ class ScoreView(arcade.View):
 
     # enter and check name/score
     def on_key_release(self, key, modifiers):
-        if (key == arcade.key.ENTER and self.name is not " " and self.submit is False):
+        if (key == arcade.key.ENTER
+           and self.name is not " "
+           and self.submit is False):
 
             if check_name(self.name) is True:
                 self.submit = True
