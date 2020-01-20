@@ -22,34 +22,26 @@ SCROLL_SPEED = 5
 
 background = arcade.load_texture("images/Alex Images/glacial_mountains_preview_lightened.png")
 
-LEFT_VIEWPORT_MARGIN = 100
-RIGHT_VIEWPORT_MARGIN = 250
+LEFT_VIEWPORT_MARGIN = 150
+RIGHT_VIEWPORT_MARGIN = 500
 
 GRID_PIXEL_SIZE = (TILE_SCALING)
 
-def load_texture_pair(filename):
-    """
-    Load a texture pair, with the second being a mirror image.
-    """
-    return [
-        arcade.load_texture(filename, scale=CHARACTER_SCALING),
-        arcade.load_texture(filename, scale=CHARACTER_SCALING, mirrored=True)
-    ]
 
-def count_score(num_list: List["Coin"]) -> int:
+def count_points(score: List[int]) -> int:
     '''recursive function to calculate players score
 
     Args:
-        num_list ("Coin" class): list of available coins in the game
+        score: list of collected coins
     Retuns:
         players current score as an int
     '''
-    if len(num_list) == 0:
+    if len(score) == 0:
         return 0
-    elif num_list[0] is not None:
-        return (num_list[0]+ 20*count_score(num_list[1:]))
+    elif score[0] is not None:
+        return (score[0]+ 10 * count_points(score[1:]))
     else:
-        return 0 + count_score(num_list[1:])
+        return 0 + count_points(score[1:])
 
 
 def check_name(name: str) -> bool:
@@ -74,43 +66,43 @@ def check_name(name: str) -> bool:
         return False
 
 
-def binary_search(lista: List[int], target: int) -> int:
+def binary_search(scores_list: List[int], target: int) -> int:
     '''searches sorted list for position of target number
 
     Args:
-        lista (list[int]): list to search
+        scores_list (list[int]): list to search
         target (int): target number you are looking for
     returns:
         index location of target number
     '''
 
     start = 0
-    end = len(lista) - 1
+    end = len(scores_list) - 1
     while start <= end:
         mid = math.ceil((start + end) // 2)
-        if lista[mid] == target:
+        if scores_list[mid] == target:
             return mid
-        elif lista[mid] > target:
+        elif scores_list[mid] > target:
             end = mid - 1
-        elif lista[mid] < target:
+        elif scores_list[mid] < target:
             start = mid + 1
     return -1
 
 
-def merge_sort(numbers: List[int]) -> List[int]:
+def merge_sort(score_list: List[int]) -> List[int]:
     '''sorts list of ints
 
     Args:
-        numbers (list[int]): list that needs to be sorted
+        score_list (list[int]): list that needs to be sorted
     Returns:
         sorted list
     '''
 
-    if len(numbers) == 1:
-        return numbers
-    midpoint = len(numbers)//2
-    left_side = merge_sort(numbers[:midpoint])
-    right_side = merge_sort(numbers[midpoint:])
+    if len(score_list) == 1:
+        return score_list
+    midpoint = len(score_list)//2
+    left_side = merge_sort(score_list[:midpoint])
+    right_side = merge_sort(score_list[midpoint:])
     sorted_list = []
     left_marker = 0
     right_marker = 0
@@ -196,7 +188,7 @@ class Alexlevel(arcade.View):
         super().__init__()
 
 
-        arcade.set_background_color(arcade.color.WHITE)
+        arcade.set_background_color(arcade.color.ICEBERG)
 
         self.wall_list = arcade.SpriteList()
         self.coin_list = arcade.SpriteList()
@@ -230,24 +222,13 @@ class Alexlevel(arcade.View):
         # -- Coins
         self.coin_list = arcade.tilemap.process_layer(my_map, coins_layer_name, TILE_SCALING)
 
-        # --- Other stuff
-        # Set the background color
-        if my_map.background_color:
-            arcade.set_background_color(arcade.color.ICEBERG)
-
-
- 
         # Used to keep track of our scrolling
         self.view_bottom = 0
         self.view_left = 0
 
-      
         self.end_of_map = 0
-        # self.background = arcade.load_texture("images/Alex Images/glacial_mountains_preview_lightened.png")
-        
 
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
-
 
      
     def on_draw(self):
@@ -256,7 +237,6 @@ class Alexlevel(arcade.View):
         self.wall_list.draw()
         self.coin_list.draw()
         self.player_list.draw()
-
 
         minutes = int(self.total_time) // 60
         seconds = int(self.total_time) % 60
@@ -297,8 +277,6 @@ class Alexlevel(arcade.View):
         self.total_time += delta_time
 
         changed_viewport = False
-        # end game here
-
 
         # Scroll left
         left_boundary = self.view_left + LEFT_VIEWPORT_MARGIN
@@ -330,16 +308,15 @@ class Alexlevel(arcade.View):
             # Remove the coin
             coin.remove_from_sprite_lists()
             self.score.append(1)
-                
 
-        if self.player_sprite.center_x <= 300 and self.player_sprite.center_y >= 670:
+
+        # end game here
+        if self.player_sprite.center_x <= 150 and self.player_sprite.center_y >= 50:
             self.win = True
             
             finish_view = FinishView()
-
-            self.score = count_score(self.score)
-            
-
+            time = self.total_time
+            self.score = count_points(self.score)
             finish_view.score = self.score
             finish_view.win = True
             finish_view.director = self.director
@@ -352,7 +329,7 @@ class Alexlevel(arcade.View):
 
 
 class FinishView(arcade.View):
-
+    background = arcade.load_texture("images\Alex Images\glacial_mountains_preview_lightened.png")
     def on_draw(self):
         arcade.start_render()
 
@@ -373,13 +350,10 @@ class FinishView(arcade.View):
         arcade.draw_text(f"YOUR SCORE WAS: {self.score}", settings.WIDTH//2, 450,
                          arcade.color.BLACK, 50, align="center",
                          anchor_x="center", anchor_y="center")
-        arcade.draw_rectangle_filled(settings.WIDTH//2, 300, 300, 100,
-                                     arcade.color.BLACK)
+
         arcade.draw_rectangle_filled(settings.WIDTH//2, 100, 300, 100,
                                      arcade.color.BLACK)
-        arcade.draw_text("CLICK TO TRY  \n AGAIN", settings.WIDTH//2, 300,
-                         arcade.color.WHITE, 25, align="center",
-                         anchor_x="center", anchor_y="center")
+
         arcade.draw_text("CLICK TO SUBMIT  \n SCORE", WIDTH//2, 100,
                          arcade.color.WHITE, 25, align="center",
                          anchor_x="center", anchor_y="center")
@@ -387,11 +361,7 @@ class FinishView(arcade.View):
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
 
-        if settings.WIDTH//2 - 150 < _x < settings.WIDTH//2 + 150 and 250 < _y < 350:
-            game_view = GameView()
-            self.window.show_view(game_view)
-
-        elif settings.WIDTH//2 - 150 < _x < settings.WIDTH//2 + 150 and 50 < _y < 150:
+        if settings.WIDTH//2 - 150 < _x < settings.WIDTH//2 + 150 and 50 < _y < 150:
             score_view = ScoreView()
             score_view.score = self.score
             score_view.director = self.director
