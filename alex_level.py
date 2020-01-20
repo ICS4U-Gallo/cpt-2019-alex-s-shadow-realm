@@ -46,9 +46,8 @@ def count_score(num_list: List["Coin"]) -> int:
     '''
     if len(num_list) == 0:
         return 0
-    elif num_list[0].get_time_collected() is not None:
-        return (num_list[0].get_time_collected()*num_list[0].collection_bonus
-                + count_score(num_list[1:]))
+    elif num_list[0] is not None:
+        return (num_list[0]+ 20*count_score(num_list[1:]))
     else:
         return 0 + count_score(num_list[1:])
 
@@ -202,16 +201,16 @@ class Alexlevel(arcade.View):
         self.wall_list = arcade.SpriteList()
         self.coin_list = arcade.SpriteList()
         self.player_list = arcade.SpriteList()
-        
-        self.score = 0
+        self.total_time = 0.0
+        self.score = []
         # Physics Engine
         self.physics_engine = None
 
         # Set up the player
         image_source = "images/Alex Images/Owlet_Monster.png"
         self.player_sprite = arcade.Sprite(image_source, CHARACTER_SCALING)
-        self.player_sprite.center_x = 200
-        self.player_sprite.center_y = 400
+        self.player_sprite.center_x = 300
+        self.player_sprite.center_y = 97
         self.player_list.append(self.player_sprite)
 
 
@@ -254,15 +253,16 @@ class Alexlevel(arcade.View):
     def on_draw(self):
         arcade.start_render()
 
-
-                                      
-
         self.wall_list.draw()
         self.coin_list.draw()
-
         self.player_list.draw()
 
 
+        minutes = int(self.total_time) // 60
+        seconds = int(self.total_time) % 60
+        output = f"Time: {minutes:02d}:{seconds:02d}"
+        arcade.draw_text(output, 10 + self.view_left, 10 + self.view_bottom,
+                         arcade.csscolor.BLACK, 18)
 
 
 
@@ -294,28 +294,27 @@ class Alexlevel(arcade.View):
 
         coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,
                                                              self.coin_list)
-                                                            
+        self.total_time += delta_time
 
+        changed_viewport = False
         # end game here
 
-
-        changed = False
 
         # Scroll left
         left_boundary = self.view_left + LEFT_VIEWPORT_MARGIN
         if self.player_sprite.left < left_boundary:
             self.view_left -= left_boundary - self.player_sprite.left
-            changed = True
+            changed_viewport = True
 
         # Scroll right
         right_boundary = self.view_left + settings.WIDTH - RIGHT_VIEWPORT_MARGIN
         if self.player_sprite.right > right_boundary:
             self.view_left += self.player_sprite.right - right_boundary
-            changed = True
+            changed_viewport = True
 
 
 
-        if changed:
+        if changed_viewport:
             # Only scroll to integers. Otherwise we end up with pixels that
             # don't line up on the screen
             self.view_bottom = int(self.view_bottom)
@@ -330,17 +329,22 @@ class Alexlevel(arcade.View):
         for coin in coin_hit_list:
             # Remove the coin
             coin.remove_from_sprite_lists()
-            self.score += 1
+            self.score.append(1)
                 
 
-        if self.player_sprite.center_x >= 500:
+        if self.player_sprite.center_x <= 300 and self.player_sprite.center_y >= 670:
             self.win = True
+            
             finish_view = FinishView()
-            self.score += 100*(self.score)
+
+            self.score = count_score(self.score)
+            
+
             finish_view.score = self.score
             finish_view.win = True
             finish_view.director = self.director
             self.window.show_view(finish_view)
+
             print(f"Your Score: {self.score}")
 
 
