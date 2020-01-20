@@ -7,7 +7,7 @@ CHARACTER_SCALING = 1.5
 TILE_SCALING = 0.5
 # COIN_SCALING = 0.5
 WIDTH = settings.WIDTH
-HEIGHT = settings.HEIGHT 
+HEIGHT = settings.HEIGHT
 # Constants used to track if the player is facing left or right
 RIGHT_FACING = 0
 LEFT_FACING = 1
@@ -16,9 +16,6 @@ MOVEMENT_SPEED = 4
 UPDATES_PER_FRAME = 7
 GRAVITY = 0.65
 PLAYER_JUMP_SPEED = 13
-
-IMAGE_WIDTH = 1350
-SCROLL_SPEED = 5
 
 background = arcade.load_texture("images/Alex Images/glacial_mountains_preview_lightened.png")
 
@@ -38,8 +35,10 @@ def count_points(score: List[int]) -> int:
     '''
     if len(score) == 0:
         return 0
+
     elif score[0] is not None:
-        return (score[0]+ 10 * count_points(score[1:]))
+        return (score[0]+ 10 *count_points(score[1:]))
+
     else:
         return 0 + count_points(score[1:])
 
@@ -158,7 +157,7 @@ def save_score(name: str = None, score: int = None) -> List:
     return [len(score_list)-(binary_search(score_list, score)), score, name]
 
 
-def find_highscores() -> Union[int, str]:
+def create_leaderboard() -> Union[int, str]:
     '''finds the three highest scores
 
     Returns:
@@ -179,12 +178,9 @@ def find_highscores() -> Union[int, str]:
         del dictionary[high_key]
     return data
 
+
 class Alexlevel(arcade.View):
-
-
     def __init__(self):
-
-
         super().__init__()
 
         # Background colour
@@ -204,8 +200,6 @@ class Alexlevel(arcade.View):
         self.player_sprite.center_x = 300
         self.player_sprite.center_y = 97
         self.player_list.append(self.player_sprite)
-
-
         # Name of map file to load
         map_name = "images\Alex Images\map\map.tmx"
         # Name of the layer in the file that has our platforms/walls
@@ -230,10 +224,8 @@ class Alexlevel(arcade.View):
 
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
 
-     
     def on_draw(self):
         arcade.start_render()
-
         self.wall_list.draw()
         self.coin_list.draw()
         self.player_list.draw()
@@ -243,8 +235,6 @@ class Alexlevel(arcade.View):
         output = f"Time: {minutes:02d}:{seconds:02d}"
         arcade.draw_text(output, 10 + self.view_left, 10 + self.view_bottom,
                          arcade.csscolor.BLACK, 18)
-
-
 
     def on_key_press(self, key, modifiers):
         """
@@ -257,7 +247,7 @@ class Alexlevel(arcade.View):
             self.player_sprite.change_x = -MOVEMENT_SPEED
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.player_sprite.change_x = MOVEMENT_SPEED
-    
+
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
 
@@ -305,13 +295,13 @@ class Alexlevel(arcade.View):
             coin.remove_from_sprite_lists()
             self.score.append(1)
 
-
         # end game here
         if self.player_sprite.center_x <= 150 and self.player_sprite.center_y >= 50:
             self.win = True
-            
+
             finish_view = FinishView()
-            time = self.total_time
+            time = int(self.total_time)
+
             self.score = count_points(self.score)
             finish_view.score = self.score
             finish_view.win = True
@@ -319,9 +309,6 @@ class Alexlevel(arcade.View):
             self.window.show_view(finish_view)
 
             print(f"Your Score: {self.score}")
-
-
-
 
 
 class FinishView(arcade.View):
@@ -349,9 +336,7 @@ class FinishView(arcade.View):
                          arcade.color.WHITE, 25, align="center",
                          anchor_x="center", anchor_y="center")
 
-
     def on_mouse_press(self, _x, _y, _button, _modifiers):
-
         if WIDTH//2 - 150 < _x < WIDTH//2 + 150 and 50 < _y < 150:
             score_view = ScoreView()
             score_view.score = self.score
@@ -359,17 +344,9 @@ class FinishView(arcade.View):
             self.window.show_view(score_view)
 
 
-
-
 class ScoreView(arcade.View):
-
-
     def __init__(self):
-
-
         super().__init__()
-
-
         arcade.set_background_color(arcade.color.BLACK)
         self.name = " "
         self.submit = False
@@ -407,7 +384,7 @@ class ScoreView(arcade.View):
                              anchor_y="center")
 
             # create top 3 scores and names
-            leaderboard = (find_highscores())
+            leaderboard = (create_leaderboard())
             for i in range(6):
                 if leaderboard[i] == 0:
                     leaderboard[i] = " "
