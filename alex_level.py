@@ -1,11 +1,12 @@
 import arcade
-
+import json
 import settings
+from typing import List, Union
 CHARACTER_SCALING = 1.5
 TILE_SCALING = 0.5
 # COIN_SCALING = 0.5
 WIDTH = settings.WIDTH
-HEIGHT = settings.HEIGHT
+HEIGHT = settings.HEIGHT 
 # Constants used to track if the player is facing left or right
 RIGHT_FACING = 0
 LEFT_FACING = 1
@@ -17,6 +18,8 @@ PLAYER_JUMP_SPEED = 13
 
 IMAGE_WIDTH = 1350
 SCROLL_SPEED = 5
+
+background = arcade.load_texture("images/Alex Images/glacial_mountains_preview_lightened.png")
 
 LEFT_VIEWPORT_MARGIN = 100
 RIGHT_VIEWPORT_MARGIN = 250
@@ -32,7 +35,151 @@ def load_texture_pair(filename):
         arcade.load_texture(filename, scale=CHARACTER_SCALING, mirrored=True)
     ]
 
+def count_score(score: int) -> int:
+    if score >= 10:
+        return score
+    #     return 0
+    # elif num_list[0].get_time_collected() is not None:
+    #     return (num_list[0].get_time_collected()*num_list[0].collection_bonus
+    #             + count_score(num_list[1:]))
+    else:
+        return 0 + count_score(score[1:])
 
+
+def check_name(name: str) -> bool:
+    '''Check if name is already taken
+
+    Args:
+        name(str): name that needs to be checked
+    Returns:
+        boolean If the name is already in use
+    '''
+
+    with open("alexscores.json", "r") as f:
+        the_scores = json.load(f)
+
+    name_list = []
+    for key in the_scores.keys():
+        name_list.append(key)
+
+    if name not in name_list:
+        return True
+    else:
+        return False
+
+
+def binary_search(lista, target: int) -> int:
+    '''searches sorted list for position of target number
+
+    Args:
+        lista (list[int]): list to search
+        target (int): target number you are looking for
+    returns:
+        index location of target number
+    '''
+
+    start = 0
+    end = len(lista) - 1
+    while start <= end:
+        mid = math.ceil((start + end) // 2)
+        if lista[mid] == target:
+            return mid
+        elif lista[mid] > target:
+            end = mid - 1
+        elif lista[mid] < target:
+            start = mid + 1
+    return -1
+
+
+def merge_sort(numbers: List[int]) -> List[int]:
+    '''sorts list of ints
+
+    Args:
+        numbers (list[int]): list that needs to be sorted
+    Returns:
+        sorted list
+    '''
+
+    if len(numbers) == 1:
+        return numbers
+    midpoint = len(numbers)//2
+    left_side = merge_sort(numbers[:midpoint])
+    right_side = merge_sort(numbers[midpoint:])
+    sorted_list = []
+    left_marker = 0
+    right_marker = 0
+    while left_marker < len(left_side) and right_marker < len(right_side):
+
+        if left_side[left_marker] < right_side[right_marker]:
+            sorted_list.append(left_side[left_marker])
+            left_marker += 1
+
+        else:
+            sorted_list.append(right_side[right_marker])
+            right_marker += 1
+
+    while right_marker < len(right_side):
+        sorted_list.append(right_side[right_marker])
+        right_marker += 1
+
+    while left_marker < len(left_side):
+        sorted_list.append(left_side[left_marker])
+        left_marker += 1
+
+    return sorted_list
+
+
+def save_score(name: str = None, score: int = None) -> List:
+    '''saves players score to file, as well as finds the players rank
+    using binary search and merge sort
+
+    Args:
+        name (str): players name
+        score (int): players score
+    Returns:
+        list containing players rank, score, and name
+    '''
+
+    with open("alexscores.json", "r") as f:
+        score_dictionary = json.load(f)
+
+    name_list = []
+    for key in score_dictionary.keys():
+        name_list.append(key)
+
+    score_dictionary[name] = score
+
+    with open("alexscores.json", "w") as f:
+        json.dump(score_dictionary, f)
+
+    score_list = []
+    for value in score_dictionary.values():
+        score_list.append(value)
+    score_list = merge_sort(score_list)
+
+    return [len(score_list)-(binary_search(score_list, score)), score, name]
+
+
+def find_highscores() -> List:
+    '''finds the three highest scores
+
+    Returns:
+        list of three highest names and scores
+    '''
+    with open("alexscores.json", "r") as f:
+        dictionary = json.load(f)
+        data = []
+    for i in range(3):
+        high_value = 0
+        high_key = None
+        for key, value in dictionary.items():
+            if value >= high_value:
+                high_value = value
+                high_key = key
+        data.append(high_key)
+        data.append(high_value)
+        del dictionary[high_key]
+    return data#
 class Alexlevel(arcade.View):
 
 
@@ -48,14 +195,14 @@ class Alexlevel(arcade.View):
         self.coin_list = arcade.SpriteList()
         self.player_list = arcade.SpriteList()
         
-        self._score = 0
+        self.score = 0
         # Physics Engine
         self.physics_engine = None
 
         # Set up the player
         image_source = "images/Alex Images/Owlet_Monster.png"
         self.player_sprite = arcade.Sprite(image_source, CHARACTER_SCALING)
-        self.player_sprite.center_x = 64
+        self.player_sprite.center_x = 200
         self.player_sprite.center_y = 400
         self.player_list.append(self.player_sprite)
 
@@ -175,18 +322,23 @@ class Alexlevel(arcade.View):
         for coin in coin_hit_list:
             # Remove the coin
             coin.remove_from_sprite_lists()
-            self._score += 1
+            self.score += 1
                 
 
         if self.player_sprite.center_x >= 500:
             self.win = True
             finish_view = FinishView()
-            self._score += 100*(self._score)
-            finish_view.score = self._score
+            self.score += 100*(self.score)
+            finish_view.score = self.score
             finish_view.win = True
             finish_view.director = self.director
             self.window.show_view(finish_view)
-            print(f"Your Score: {self._score}")
+            print(f"Your Score: {self.score}")
+
+
+
+
+
 class FinishView(arcade.View):
 
     def on_draw(self):
@@ -232,6 +384,10 @@ class FinishView(arcade.View):
             score_view.score = self.score
             score_view.director = self.director
             self.window.show_view(score_view)
+
+
+
+
 class ScoreView(arcade.View):
     def __init__(self):
         super().__init__()
@@ -347,10 +503,14 @@ class ScoreView(arcade.View):
         if (key == arcade.key.ENTER
            and self.name is not " "
            and self.submit is False):
-
+            print(self.name)
+            save_score(self.name, self.score)
             if check_name(self.name) is True:
+                print("1")
+                print(self.name)
                 self.submit = True
-                self.stats = save_score(self.name, self.score)
+                self.save_score(self.name, self.score)
+                self.window.show_view(score_view)
 
             else:
                 self.name_taken = True
