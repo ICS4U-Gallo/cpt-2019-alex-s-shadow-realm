@@ -54,18 +54,20 @@ def check_name(name: str) -> bool:
     Returns:
         boolean If the name is already in use
     '''
-
+    print(name)
     with open("alexscores.json", "r") as f:
+        print("ok")
         the_scores = json.load(f)
+        print(the_scores)
 
-    name_list = []
-    for key in the_scores.keys():
-        name_list.append(key)
-
-    if name not in name_list:
-        return True
-    else:
-        return False
+        name_list = []
+        for key in the_scores.keys():
+            name_list.append(key)
+            print("ok")
+        if name not in name_list:
+            return True
+        else:
+            return False
 
 
 def binary_search(lista, target: int) -> int:
@@ -168,7 +170,9 @@ def find_highscores() -> List:
     '''
     with open("alexscores.json", "r") as f:
         dictionary = json.load(f)
-        data = []
+
+
+    data = []
     for i in range(3):
         high_value = 0
         high_key = None
@@ -500,20 +504,15 @@ class ScoreView(arcade.View):
 
     # enter and check name/score
     def on_key_release(self, key, modifiers):
-        if (key == arcade.key.ENTER
-           and self.name is not " "
-           and self.submit is False):
-            print(self.name)
-            save_score(self.name, self.score)
+        if (key == arcade.key.ENTER and self.name is not " " and self.submit is False):
+
             if check_name(self.name) is True:
-                print("1")
-                print(self.name)
                 self.submit = True
-                self.save_score(self.name, self.score)
-                self.window.show_view(score_view)
+                self.stats = save_score(self.name, self.score)
 
             else:
                 self.name_taken = True
+
 
 if __name__ == "__main__":
     """This section of code will allow you to run your View
