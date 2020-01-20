@@ -2,7 +2,8 @@ import arcade
 
 
 class GameProperties:
-    '''Game Properties class: Static for Game properties -- similar as static method but cleaner code
+    '''Game Properties class: Static for Game properties --
+    similar as static method but cleaner code
     Attributes:
         SCREEN_WIDTH: screen width
         SCREEN_HEIGHT: screen height
@@ -24,6 +25,7 @@ class GameProperties:
     GAME_RUNNING = 1
     GAME_OVER = 2
 
+
 class AlansGame(arcade.Window):
     '''Game class
         Attributes:
@@ -34,7 +36,7 @@ class AlansGame(arcade.Window):
             score: score of the game
             endgame: end game status
             current_state: current game status
-            eat_jerry_sound: tom's eating sound 
+            eat_jerry_sound: tom's eating sound
             jump_sound: finished game sound
             arcade.set_background_color:background color
     '''
@@ -119,8 +121,8 @@ class AlansGame(arcade.Window):
             self.draw_game()
         else:
             self.draw_game()
-            self.draw_game_over()        
- 
+            self.draw_game_over()
+
     def on_mouse_press(self, x, y, button, modifiers):
         if self.current_state == GameProperties.GAME_OVER:
             self.setup()
@@ -148,19 +150,19 @@ class AlansGame(arcade.Window):
 
     def on_update(self, delta_time):
         """Updates and checks to see if Tom catches any Jerries. Updates score
-        """     
+        """
         if self.current_state == GameProperties.GAME_RUNNING:
             self.physics_engine.update()
             # See if Tom catches any Jerries
-            jerry_hit_list = arcade.check_for_collision_with_list(self.tom_sprite,
-                                                                self.jerry_list)
+            jerry_hit_list = arcade.check_for_collision_with_list(self.tom_sprite, self.jerry_list)
             for jerry in jerry_hit_list:
                 jerry.remove_from_sprite_lists()
                 arcade.play_sound(self.eat_jerry_sound)
                 self.score += 1
-                if self.score >=4 :
+                if self.score >= 4:
                     arcade.play_sound(self.jump_sound)
-                    self.current_state = GameProperties.GAME_OVER    
+                    self.current_state = GameProperties.GAME_OVER
+
 
 def main():
     """This section of code will allow you to run your View
@@ -172,7 +174,7 @@ def main():
     It is advised you do not modify it unless you really know
     what you are doing.
     """
-    # Create AlansGame 
+    # Create AlansGame
     window = AlansGame()
     window.setup()
     arcade.run()
