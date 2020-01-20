@@ -62,7 +62,7 @@ def check_name(name: str) -> bool:
         boolean If the name is already in use
     '''
 
-    with open("rays_scores.json", "r") as f:
+    with open("alex_scores.json", "r") as f:
         score_dictionary = json.load(f)
 
     name_list = []
@@ -147,7 +147,7 @@ def save_score(name: str = None, score: int = None) -> List:
         list containing players rank, score, and name
     '''
 
-    with open("rays_scores.json", "r") as f:
+    with open("alex_scores.json", "r") as f:
         score_dictionary = json.load(f)
 
     name_list = []
@@ -156,7 +156,7 @@ def save_score(name: str = None, score: int = None) -> List:
 
     score_dictionary[name] = score
 
-    with open("rays_scores.json", "w") as f:
+    with open("alex_scores.json", "w") as f:
         json.dump(score_dictionary, f)
 
     score_list = []
@@ -173,7 +173,7 @@ def find_highscores() -> Union[int, str]:
     Returns:
         list of three highest names and scores
     '''
-    with open("rays_scores.json", "r") as f:
+    with open("alex_scores.json", "r") as f:
         dictionary = json.load(f)
         data = []
     for i in range(3):
