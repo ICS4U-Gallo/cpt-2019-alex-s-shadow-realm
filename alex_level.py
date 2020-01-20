@@ -45,7 +45,7 @@ def count_points(score: List[int]) -> int:
 
 
 def check_name(name: str) -> bool:
-    '''Check if name is already taken
+    '''Checks if name is already taken
 
     Args:
         name(str): name that needs to be checked
@@ -187,7 +187,7 @@ class Alexlevel(arcade.View):
 
         super().__init__()
 
-
+        # Background colour
         arcade.set_background_color(arcade.color.ICEBERG)
 
         self.wall_list = arcade.SpriteList()
@@ -213,13 +213,13 @@ class Alexlevel(arcade.View):
         # Name of the layer that has items for pick-up
         coins_layer_name = 'Coins'
 
-        # Read in the tiled map
+        # Load in the tiled map
         my_map = arcade.tilemap.read_tmx(map_name)
 
-        # -- Platforms
+        # Platforms
         self.wall_list = arcade.tilemap.process_layer(my_map, platforms_layer_name, TILE_SCALING)
 
-        # -- Coins
+        # Coins
         self.coin_list = arcade.tilemap.process_layer(my_map, coins_layer_name, TILE_SCALING)
 
         # Used to keep track of our scrolling
@@ -269,9 +269,8 @@ class Alexlevel(arcade.View):
     def on_update(self, delta_time):
 
         # Move the player with the physics engine
-
         self.physics_engine.update()
-
+        # Check to see if the player collects any coins
         coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,
                                                              self.coin_list)
         self.total_time += delta_time
@@ -285,24 +284,21 @@ class Alexlevel(arcade.View):
             changed_viewport = True
 
         # Scroll right
-        right_boundary = self.view_left + settings.WIDTH - RIGHT_VIEWPORT_MARGIN
+        right_boundary = self.view_left + WIDTH - RIGHT_VIEWPORT_MARGIN
         if self.player_sprite.right > right_boundary:
             self.view_left += self.player_sprite.right - right_boundary
             changed_viewport = True
 
-
-
         if changed_viewport:
-            # Only scroll to integers. Otherwise we end up with pixels that
-            # don't line up on the screen
+
             self.view_bottom = int(self.view_bottom)
             self.view_left = int(self.view_left)
 
             # Do the scrolling
             arcade.set_viewport(self.view_left,
-                                settings.WIDTH + self.view_left,
+                                WIDTH + self.view_left,
                                 self.view_bottom,
-                                settings.HEIGHT + self.view_bottom)
+                                HEIGHT + self.view_bottom)
 
         for coin in coin_hit_list:
             # Remove the coin
@@ -329,29 +325,24 @@ class Alexlevel(arcade.View):
 
 
 class FinishView(arcade.View):
-    background = arcade.load_texture("images\Alex Images\glacial_mountains_preview_lightened.png")
+
     def on_draw(self):
         arcade.start_render()
 
-        # print win/lose screen
-        if self.win is False:
-            arcade.set_background_color(arcade.color.RED)
-            arcade.draw_text("YOU LOSE", settings.WIDTH//2, 550, arcade.color.BLACK,
-                             100, align="center", anchor_x="center",
-                             anchor_y="center")
-        elif self.win is True:
+        # print win screen
+
+        if self.win is True:
             arcade.set_background_color(arcade.color.GREEN)
-            arcade.draw_text("YOU WIN", settings.WIDTH//2, 550, arcade.color.BLACK, 100,
+            arcade.draw_text("YOU WIN", WIDTH//2, 550, arcade.color.BLACK, 100,
                              align="center", anchor_x="center",
                              anchor_y="center")
 
         # buttons
-
-        arcade.draw_text(f"YOUR SCORE WAS: {self.score}", settings.WIDTH//2, 450,
+        arcade.draw_text(f"YOUR SCORE WAS: {self.score}", WIDTH//2, 450,
                          arcade.color.BLACK, 50, align="center",
                          anchor_x="center", anchor_y="center")
 
-        arcade.draw_rectangle_filled(settings.WIDTH//2, 100, 300, 100,
+        arcade.draw_rectangle_filled(WIDTH//2, 100, 300, 100,
                                      arcade.color.BLACK)
 
         arcade.draw_text("CLICK TO SUBMIT  \n SCORE", WIDTH//2, 100,
@@ -361,7 +352,7 @@ class FinishView(arcade.View):
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
 
-        if settings.WIDTH//2 - 150 < _x < settings.WIDTH//2 + 150 and 50 < _y < 150:
+        if WIDTH//2 - 150 < _x < WIDTH//2 + 150 and 50 < _y < 150:
             score_view = ScoreView()
             score_view.score = self.score
             score_view.director = self.director
@@ -371,8 +362,14 @@ class FinishView(arcade.View):
 
 
 class ScoreView(arcade.View):
+
+
     def __init__(self):
+
+
         super().__init__()
+
+
         arcade.set_background_color(arcade.color.BLACK)
         self.name = " "
         self.submit = False
@@ -385,8 +382,8 @@ class ScoreView(arcade.View):
                                       background)
         # typing name
         if self.submit is False:
-            arcade.draw_text("ENTER NAME:", 100, 310, arcade.color.WHITE, 80,)
-            arcade.draw_text(self.name, 750, 310, arcade.color.WHITE, 80)
+            arcade.draw_text("ENTER NAME:", 100, 310, arcade.color.BLUE_YONDER, 80,)
+            arcade.draw_text(self.name, 750, 310, arcade.color.BLUE_YONDER, 80)
 
         # draw leaderboard
         else:
@@ -397,15 +394,15 @@ class ScoreView(arcade.View):
                              align="center", anchor_x="center",
                              anchor_y="center")
             arcade.draw_text("RANK", WIDTH//3 - 100, 475,
-                             arcade.color.NEON_GREEN, 70,
+                             arcade.color.BLUEBONNET, 70,
                              align="center", anchor_x="center",
                              anchor_y="center")
             arcade.draw_text("SCORE", WIDTH//2, 475,
-                             arcade.color.NEON_GREEN, 70,
+                             arcade.color.BLUEBONNET, 70,
                              align="center", anchor_x="center",
                              anchor_y="center")
             arcade.draw_text("NAME", WIDTH - WIDTH//3 + 100, 475,
-                             arcade.color.NEON_GREEN, 70,
+                             arcade.color.BLUEBONNET, 70,
                              align="center", anchor_x="center",
                              anchor_y="center")
 
@@ -506,7 +503,7 @@ if __name__ == "__main__":
     what you are doing.
     """
     from utils import FakeDirector
-    window = arcade.Window(settings.WIDTH, settings.HEIGHT)
+    window = arcade.Window(WIDTH, HEIGHT)
     my_view = Alexlevel()
     my_view.director = FakeDirector(close_on_next_view=True)
     window.show_view(my_view)
