@@ -1,3 +1,11 @@
+'''Cheat codes (in case u play like max). Will only work while in game,
+   not finish or scoreboard screens:
+
+    Pressing 1 will teleport you to the end and set your score to the max
+    Pressing 2 will collect a coin/diamond
+    Pressing 3 will reset the scoreboard
+'''
+
 import arcade
 import math
 import settings
@@ -171,12 +179,16 @@ class Player(arcade.Sprite):
     '''Player class
     Attributes:
         image (image file): image
-        center_x (int): x pos of turret
-        center_y (int): y pos of turret
-        angle (int): angle of turret
+        speed (int): current moving speed
+        move_speed (int): ships allowed speed
+        turn_speed (int): speed of turning
         '''
 
     def __init__(self, image):
+        """Create a Player object.
+        Args:
+            image: file path of image
+        """
 
         # Call the parent init
         super().__init__(image, scale=0.25)
@@ -189,13 +201,14 @@ class Player(arcade.Sprite):
         self.angle = 270
 
     def update(self):
-        # Convert angle in degrees to radians.
+        # Convert angle from degrees to radians.
         angle_rad = math.radians(self.angle)
 
-        # Rotate the ship
+        # turn
         self.angle += self.change_angle
 
-        # Use math to find our change based on our speed and angle
+        # math stuffs to make moving corellate with ships angle
+
         self.center_x += -self._speed * math.sin(angle_rad)
         self.center_y += self._speed * math.cos(angle_rad)
 
@@ -227,10 +240,8 @@ class Turret(arcade.Sprite):
     '''Turret class
     Attributes:
         image (image file): the name of the food
-        center_x (int): x pos of turret
-        center_y (int): y pos of turret
-        angle (int): angle of turret
-        '''
+        activated (bool): defines whether turret is on or off
+    '''
 
     def __init__(self, image, center_x, center_y, angle):
         """Create a Turret object.
@@ -255,6 +266,10 @@ class Turret(arcade.Sprite):
 
 
 class SpinnyTurret(Turret):
+    '''Spinny turret class
+    Attributes:
+        self.turn_speed (int): how fast to spin
+    '''
     def __init__(self, image, center_x, center_y, angle):
         super().__init__(image, center_x, center_y, angle)
         self.turn_speed = 1
@@ -266,15 +281,19 @@ class SmartTurret(Turret):
         self.angle = 90
 
     def update(self, target_x, target_y):
-        # Convert angle in degrees to radians.
+        # aim at player always
         self.angle = (-90 + math.degrees(math.atan2(target_y - self.center_y,
                       target_x - self.center_x)))
 
 
 class Laser(arcade.Sprite):
-
+    '''Laser class
+    '''
     def __init__(self, turret):
-
+        '''create laser object
+        Args:
+            turret (Turret object): the turret where laser will shoot from
+        '''
         super().__init__()
         self.center_x = turret.center_x
         self.center_y = turret.center_y
@@ -289,7 +308,9 @@ class Laser(arcade.Sprite):
 
 
 class Barrier(arcade.Sprite):
+
     def __init__(self, center_x, center_y, angle):
+
         super().__init__()
         self.center_x = center_x
         self.center_y = center_y

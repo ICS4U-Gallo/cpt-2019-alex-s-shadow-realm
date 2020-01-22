@@ -9,8 +9,11 @@ class JeanlucView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text("Jeanluc", settings.WIDTH/2, settings.HEIGHT/2,
-                         arcade.color.BLACK, font_size=30, anchor_x="center")
+        arcade.draw_xywh_rectangle_textured(0, 0, 1350, 700,
+                                            arcade.load_texture
+                                            ("images/locked.jpg"))
+        arcade.draw_text("Jealucs levl (pls perchase dlc to unlok", settings.WIDTH/2, settings.HEIGHT/2,
+                         arcade.color.RED, font_size=65, anchor_x="center")
 
     def on_key_press(self, key, modifiers):
         self.director.next_view()

@@ -5,7 +5,7 @@ import settings
 from menu import MenuView
 from rays_level import GameView
 from alex_level import Alexlevel
-from alans_level import Alanslevel
+from alans_level import AlansGame
 from jeanluc_level import JeanlucView
 
 
@@ -16,9 +16,10 @@ class Director(arcade.Window):
         self.views = [
             MenuView,
             GameView,
-            Alexlevel,
-            Alanslevel,
-            JeanlucView
+            #Alexlevel,
+            JeanlucView,
+            AlansGame
+            
         ]
         self.next_view()
 
@@ -30,7 +31,7 @@ class Director(arcade.Window):
 
 
 def main():
-    window = Director(settings.WIDTH, settings.HEIGHT, "CPT Structure")
+    window = Director(settings.WIDTH, settings.HEIGHT, "Game")
     arcade.run()
 
 
